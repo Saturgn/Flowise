@@ -6,191 +6,62 @@
   <title>Presupuestador — Madera Fina</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f5f0eb;
-      --surface: #ffffff;
-      --border: #d6c9b8;
-      --accent: #8b6e4e;
-      --accent-dark: #6b5039;
-      --accent-light: #e8ddd0;
-      --text: #2c2018;
-      --text-soft: #7a6555;
-      --green: #4a7c59;
-      --red: #c0392b;
+      --bg: #f5f0eb; --surface: #ffffff; --border: #d6c9b8;
+      --accent: #8b6e4e; --accent-dark: #6b5039; --accent-light: #e8ddd0;
+      --text: #2c2018; --text-soft: #7a6555; --red: #c0392b;
     }
-
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    header {
-      background: var(--accent-dark);
-      color: #fff;
-      padding: 1rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    header h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: 0.02em; }
-    header span { font-size: 0.85rem; opacity: 0.75; }
-
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr 360px;
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-    }
-
-    h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--accent-dark);
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--accent-light);
-    }
-
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { background: var(--accent-dark); color: #fff; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+    header h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: .02em; }
+    header span { font-size: .85rem; opacity: .75; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 1fr 360px; gap: 1.5rem; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; }
+    h2 { font-size: .95rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-dark); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--accent-light); }
     .field { margin-bottom: 1rem; }
-    label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--text-soft); margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.04em; }
-
-    select, input[type=number], input[type=text] {
-      width: 100%;
-      padding: 0.55rem 0.75rem;
-      border: 1.5px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      background: #faf8f5;
-      color: var(--text);
-      transition: border-color 0.15s;
-      appearance: none;
-    }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b6e4e' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.75rem center; padding-right: 2rem; }
+    label { display: block; font-size: .82rem; font-weight: 600; color: var(--text-soft); margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .04em; }
+    select, input[type=number] { width: 100%; padding: .55rem .75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: .95rem; background: #faf8f5; color: var(--text); transition: border-color .15s; appearance: none; -webkit-appearance: none; }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b6e4e' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .75rem center; padding-right: 2rem; }
     select:focus, input:focus { outline: none; border-color: var(--accent); }
-    select:disabled, input:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .dims-row {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr auto;
-      gap: 0.5rem;
-      align-items: end;
-    }
-    .dims-row .sep { font-size: 1.2rem; color: var(--text-soft); padding-bottom: 0.5rem; text-align: center; }
-    .dims-meta { font-size: 0.8rem; color: var(--text-soft); margin-top: 0.4rem; }
-    .dims-meta strong { color: var(--accent-dark); font-size: 0.95rem; }
-
-    /* Tabs */
-    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .tab-btn {
-      padding: 0.4rem 0.9rem;
-      border: 1.5px solid var(--border);
-      border-radius: 20px;
-      background: #faf8f5;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text-soft);
-      transition: all 0.15s;
-    }
+    select:disabled, input:disabled { opacity: .45; cursor: not-allowed; }
+    .dims-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: .5rem; align-items: end; }
+    .dims-sep { font-size: 1.2rem; color: var(--text-soft); padding-bottom: .5rem; text-align: center; }
+    .dims-meta { font-size: .8rem; color: var(--text-soft); margin-top: .4rem; }
+    .dims-meta strong { color: var(--accent-dark); font-size: .95rem; }
+    .tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab-btn { padding: .4rem .9rem; border: 1.5px solid var(--border); border-radius: 20px; background: #faf8f5; font-size: .82rem; font-weight: 600; cursor: pointer; color: var(--text-soft); transition: all .15s; }
     .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
     .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
-
-    /* Supplements */
     .supp-group { margin-bottom: 1rem; }
-    .supp-group-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-soft); margin-bottom: 0.5rem; }
-
-    .supp-item {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--accent-light);
-    }
+    .supp-group-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-soft); margin-bottom: .5rem; }
+    .supp-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .5rem; padding: .5rem 0; border-bottom: 1px solid var(--accent-light); }
     .supp-item:last-child { border-bottom: none; }
-    .supp-name { font-size: 0.88rem; }
-    .supp-price { font-size: 0.78rem; color: var(--text-soft); white-space: nowrap; }
+    .supp-name { font-size: .88rem; }
+    .supp-price { font-size: .78rem; color: var(--text-soft); white-space: nowrap; }
     .supp-qty { width: 70px; }
-    .supp-unit { font-size: 0.75rem; color: var(--text-soft); min-width: 24px; }
-
-    /* Summary panel */
+    .supp-unit { font-size: .75rem; color: var(--text-soft); min-width: 24px; }
     .summary-panel { position: sticky; top: 1.5rem; }
-
     .line-items { margin-bottom: 1rem; }
-    .line-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 0.45rem 0;
-      border-bottom: 1px solid var(--accent-light);
-      gap: 0.5rem;
-    }
+    .line-item { display: flex; justify-content: space-between; align-items: flex-start; padding: .45rem 0; border-bottom: 1px solid var(--accent-light); gap: .5rem; }
     .line-item:last-child { border-bottom: none; }
-    .li-desc { font-size: 0.82rem; color: var(--text-soft); flex: 1; }
-    .li-val { font-size: 0.88rem; font-weight: 600; white-space: nowrap; }
-
-    .total-box {
-      background: var(--accent-light);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-top: 0.75rem;
-    }
+    .li-desc { font-size: .82rem; color: var(--text-soft); flex: 1; }
+    .li-val { font-size: .88rem; font-weight: 600; white-space: nowrap; }
+    .total-box { background: var(--accent-light); border-radius: 8px; padding: 1rem; margin-top: .75rem; }
     .total-row { display: flex; justify-content: space-between; align-items: baseline; }
-    .total-label { font-size: 0.85rem; color: var(--text-soft); }
+    .total-label { font-size: .85rem; color: var(--text-soft); }
     .total-val { font-size: 1rem; font-weight: 600; }
-    .total-iva { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border); }
+    .total-iva { margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--border); }
     .total-iva .total-label { font-size: 1rem; font-weight: 700; color: var(--text); }
     .total-iva .total-val { font-size: 1.5rem; font-weight: 800; color: var(--accent-dark); }
-
-    .empty-msg { text-align: center; color: var(--text-soft); font-size: 0.88rem; padding: 2rem 0; }
-
-    .btn-add {
-      width: 100%;
-      padding: 0.7rem;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.02em;
-      transition: background 0.15s;
-      margin-top: 0.5rem;
-    }
+    .empty-msg { text-align: center; color: var(--text-soft); font-size: .88rem; padding: 2rem 0; }
+    .btn-add { width: 100%; padding: .7rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; letter-spacing: .02em; transition: background .15s; margin-top: .5rem; }
     .btn-add:hover { background: var(--accent-dark); }
-    .btn-add:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .btn-clear {
-      width: 100%;
-      padding: 0.5rem;
-      background: transparent;
-      color: var(--text-soft);
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.82rem;
-      cursor: pointer;
-      margin-top: 0.5rem;
-      transition: all 0.15s;
-    }
+    .btn-add:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-clear { width: 100%; padding: .5rem; background: transparent; color: var(--text-soft); border: 1.5px solid var(--border); border-radius: 8px; font-size: .82rem; cursor: pointer; margin-top: .5rem; transition: all .15s; }
     .btn-clear:hover { border-color: var(--red); color: var(--red); }
-
-    .badge-warn { background: #fff3cd; color: #856404; font-size: 0.75rem; padding: 0.35rem 0.6rem; border-radius: 6px; margin-top: 0.5rem; }
-
+    .precio-badge { display: flex; justify-content: space-between; align-items: center; background: var(--accent-light); border-radius: 8px; padding: .75rem 1rem; margin-top: .25rem; }
+    .precio-badge span { font-size: .8rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
+    .precio-badge strong { font-size: 1.1rem; font-weight: 700; color: var(--accent-dark); }
     @media (max-width: 768px) {
       .container { grid-template-columns: 1fr; }
       .summary-panel { position: static; }
@@ -208,13 +79,9 @@
 
 <div class="container">
 
-  <!-- LEFT: Configurator -->
   <div>
-
-    <!-- Step 1: Product -->
     <div class="card" style="margin-bottom:1.25rem">
       <h2>1. Producto</h2>
-
       <div class="tabs" id="familyTabs">
         <button class="tab-btn" onclick="setFamily('melamina')">Melamina</button>
         <button class="tab-btn" onclick="setFamily('hpl1')">HPL 1 cara</button>
@@ -226,57 +93,50 @@
         <button class="tab-btn" onclick="setFamily('alistonado-roble')">Alistonado Roble</button>
         <button class="tab-btn" onclick="setFamily('alistonado-haya')">Alistonado Haya</button>
       </div>
-
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div class="field">
           <label>Acabado</label>
-          <select id="selAcabado" onchange="updateProduct()">
+          <select id="selAcabado" onchange="updateAcabado()">
             <option value="">— Selecciona familia —</option>
           </select>
         </div>
         <div class="field">
           <label>Grosor</label>
-          <select id="selGrosor" onchange="updateProduct()">
+          <select id="selGrosor" onchange="updateGrosor()" disabled>
             <option value="">— Selecciona acabado —</option>
           </select>
         </div>
       </div>
-
-      <div id="precioUnitario" style="display:none;background:var(--accent-light);border-radius:8px;padding:0.75rem 1rem;margin-top:0.25rem">
-        <span style="font-size:0.8rem;color:var(--text-soft);text-transform:uppercase;letter-spacing:.04em">Precio base</span>
-        <span id="precioUnitarioVal" style="float:right;font-size:1.1rem;font-weight:700;color:var(--accent-dark)"></span>
+      <div class="precio-badge" id="precioUnitario" style="display:none">
+        <span>Precio base (IVA incl.)</span>
+        <strong id="precioUnitarioVal"></strong>
       </div>
     </div>
 
-    <!-- Step 2: Dimensions -->
     <div class="card" style="margin-bottom:1.25rem">
       <h2>2. Dimensiones</h2>
       <div class="dims-row">
         <div class="field" style="margin:0">
           <label>Largo (cm)</label>
-          <input type="number" id="inpLargo" min="15" max="275" placeholder="ej. 120" oninput="calcDims()">
+          <input type="number" id="inpLargo" min="15" max="275" placeholder="ej. 200" oninput="calcDims()">
         </div>
-        <div class="sep">×</div>
+        <div class="dims-sep">×</div>
         <div class="field" style="margin:0">
           <label>Ancho (cm)</label>
           <input type="number" id="inpAncho" min="15" max="140" placeholder="ej. 60" oninput="calcDims()">
         </div>
-        <div class="sep"></div>
       </div>
       <div class="dims-meta" id="dimsMeta"></div>
     </div>
 
-    <!-- Step 3: Supplements -->
     <div class="card">
       <h2>3. Suplementos</h2>
       <div id="suppsContainer">
-        <p style="color:var(--text-soft);font-size:0.88rem">Selecciona primero un producto.</p>
+        <p style="color:var(--text-soft);font-size:.88rem">Selecciona primero un producto.</p>
       </div>
     </div>
-
   </div>
 
-  <!-- RIGHT: Summary -->
   <div class="summary-panel">
     <div class="card">
       <h2>Resumen</h2>
@@ -288,7 +148,7 @@
           <span class="total-label">Base imponible</span>
           <span class="total-val" id="totalBI">—</span>
         </div>
-        <div class="total-row" style="margin-top:0.25rem">
+        <div class="total-row" style="margin-top:.25rem">
           <span class="total-label">IVA (21%)</span>
           <span class="total-val" id="totalIVA">—</span>
         </div>
@@ -302,7 +162,7 @@
       <div id="quoteSection" style="display:none;margin-top:1.5rem">
         <h2>Partidas añadidas</h2>
         <div id="quoteLines"></div>
-        <div class="total-box" style="margin-top:0.75rem">
+        <div class="total-box" style="margin-top:.75rem">
           <div class="total-row total-iva">
             <span class="total-label">TOTAL PRESUPUESTO</span>
             <span class="total-val" id="grandTotal">0,00 €</span>
@@ -316,67 +176,64 @@
 </div>
 
 <script>
-// ============================================================
-// DATA
-// ============================================================
 const PRODUCTS = [
-  {family:'melamina', acabado:'basic', acabadoLabel:'Basic', grosor:1.9, precio:51.57},
-  {family:'melamina', acabado:'platinium', acabadoLabel:'Platinium', grosor:1.9, precio:58.44},
-  {family:'melamina', acabado:'basic', acabadoLabel:'Basic', grosor:3.0, precio:68.18},
-  {family:'melamina', acabado:'platinium', acabadoLabel:'Platinium', grosor:3.0, precio:83.49},
-  {family:'hpl1', acabado:'basic', acabadoLabel:'Basic', grosor:1.0, precio:140.26},
-  {family:'hpl1', acabado:'platinium', acabadoLabel:'Platinium', grosor:1.0, precio:150.65},
-  {family:'hpl1', acabado:'basic', acabadoLabel:'Basic', grosor:2.0, precio:161.04},
-  {family:'hpl1', acabado:'platinium', acabadoLabel:'Platinium', grosor:2.0, precio:171.43},
-  {family:'hpl1', acabado:'gold', acabadoLabel:'Gold', grosor:2.0, precio:264.94},
-  {family:'hpl1', acabado:'basic', acabadoLabel:'Basic', grosor:4.0, precio:207.80},
-  {family:'hpl1', acabado:'platinium', acabadoLabel:'Platinium', grosor:4.0, precio:238.97},
-  {family:'hpl1', acabado:'gold', acabadoLabel:'Gold', grosor:4.0, precio:327.28},
-  {family:'hpl1', acabado:'basic', acabadoLabel:'Basic', grosor:6.0, precio:389.62},
-  {family:'hpl1', acabado:'platinium', acabadoLabel:'Platinium', grosor:6.0, precio:431.18},
-  {family:'hpl2', acabado:'basic', acabadoLabel:'Basic', grosor:1.0, precio:187.02},
-  {family:'hpl2', acabado:'platinium', acabadoLabel:'Platinium', grosor:1.0, precio:202.60},
-  {family:'hpl2', acabado:'basic', acabadoLabel:'Basic', grosor:2.0, precio:207.80},
-  {family:'hpl2', acabado:'platinium', acabadoLabel:'Platinium', grosor:2.0, precio:223.38},
-  {family:'hpl2', acabado:'basic', acabadoLabel:'Basic', grosor:4.0, precio:270.14},
-  {family:'hpl2', acabado:'platinium', acabadoLabel:'Platinium', grosor:4.0, precio:311.70},
-  {family:'hpl2', acabado:'gold', acabadoLabel:'Gold', grosor:4.0, precio:425.98},
-  {family:'hpl2', acabado:'basic', acabadoLabel:'Basic', grosor:6.0, precio:415.59},
-  {family:'hpl2', acabado:'platinium', acabadoLabel:'Platinium', grosor:6.0, precio:457.15},
-  {family:'rechapado-pino', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.1, precio:56.01},
-  {family:'rechapado-pino', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.9, precio:68.62},
-  {family:'rechapado-pino', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:3.1, precio:76.23},
-  {family:'rechapado-roble', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.1, precio:79.57},
-  {family:'rechapado-roble', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.9, precio:90.60},
-  {family:'rechapado-roble', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:3.1, precio:102.20},
-  {family:'rechapado-haya', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.1, precio:64.72},
-  {family:'rechapado-haya', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.9, precio:73.43},
-  {family:'rechapado-haya', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:3.1, precio:91.60},
-  {family:'alistonado-pino', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.8, precio:98.01},
-  {family:'alistonado-pino', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:3.0, precio:133.79},
-  {family:'alistonado-pino', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:4.0, precio:219.78},
-  {family:'alistonado-roble', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.8, precio:198.06},
-  {family:'alistonado-roble', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:3.0, precio:297.36},
-  {family:'alistonado-haya', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:1.8, precio:145.45},
-  {family:'alistonado-haya', acabado:'natural', acabadoLabel:'Sin barnizar', grosor:3.0, precio:220.57},
+  {family:'melamina',acabado:'basic',acabadoLabel:'Basic',grosor:1.9,precio:51.57},
+  {family:'melamina',acabado:'platinium',acabadoLabel:'Platinium',grosor:1.9,precio:58.44},
+  {family:'melamina',acabado:'basic',acabadoLabel:'Basic',grosor:3.0,precio:68.18},
+  {family:'melamina',acabado:'platinium',acabadoLabel:'Platinium',grosor:3.0,precio:83.49},
+  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:1.0,precio:140.26},
+  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:1.0,precio:150.65},
+  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:2.0,precio:161.04},
+  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:2.0,precio:171.43},
+  {family:'hpl1',acabado:'gold',acabadoLabel:'Gold',grosor:2.0,precio:264.94},
+  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:4.0,precio:207.80},
+  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:4.0,precio:238.97},
+  {family:'hpl1',acabado:'gold',acabadoLabel:'Gold',grosor:4.0,precio:327.28},
+  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:6.0,precio:389.62},
+  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:6.0,precio:431.18},
+  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:1.0,precio:187.02},
+  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:1.0,precio:202.60},
+  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:2.0,precio:207.80},
+  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:2.0,precio:223.38},
+  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:4.0,precio:270.14},
+  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:4.0,precio:311.70},
+  {family:'hpl2',acabado:'gold',acabadoLabel:'Gold',grosor:4.0,precio:425.98},
+  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:6.0,precio:415.59},
+  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:6.0,precio:457.15},
+  {family:'rechapado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.1,precio:56.01},
+  {family:'rechapado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.9,precio:68.62},
+  {family:'rechapado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.1,precio:76.23},
+  {family:'rechapado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.1,precio:79.57},
+  {family:'rechapado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.9,precio:90.60},
+  {family:'rechapado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.1,precio:102.20},
+  {family:'rechapado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.1,precio:64.72},
+  {family:'rechapado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.9,precio:73.43},
+  {family:'rechapado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.1,precio:91.60},
+  {family:'alistonado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.8,precio:98.01},
+  {family:'alistonado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.0,precio:133.79},
+  {family:'alistonado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:4.0,precio:219.78},
+  {family:'alistonado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.8,precio:198.06},
+  {family:'alistonado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.0,precio:297.36},
+  {family:'alistonado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.8,precio:145.45},
+  {family:'alistonado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.0,precio:220.57},
 ];
 
 const SUPPLEMENTS = [
-  {key:'canto_melamina', label:'Canteado melamina', families:['melamina'], unit:'ml', precio:3.76},
-  {key:'canto_rechapado', label:'Canteado rechapado', families:['rechapado-pino','rechapado-roble','rechapado-haya'], unit:'ml', precio:3.46},
-  {key:'fresado_alistonado', label:'Fresado alistonado', families:['alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ml', precio:3.46},
-  {key:'esquina', label:'Esquina redondeada', families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ud', precio:15.70},
-  {key:'barnizado_natural', label:'Barnizado natural', families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'m²', precio:51.86, perM2:true},
-  {key:'barnizado_tintado', label:'Barnizado tintado', families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'m²', precio:51.86, perM2:true},
-  {key:'corte_chanflan', label:'Corte interior / chaflán canteado', families:['melamina','hpl1','hpl2'], unit:'ud', precio:41.86},
-  {key:'corte_chanflan_nat', label:'Corte interior / chaflán canteado', families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ud', precio:40.33},
-  {key:'corte_r2', label:'Corte redondo 2 lados canteado', families:['melamina','hpl1','hpl2'], unit:'ud', precio:83.71},
-  {key:'corte_r4', label:'Corte redondo 4 lados canteado', families:['melamina','hpl1','hpl2'], unit:'ud', precio:167.43},
-  {key:'pasacables', label:'Pasacables', families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ud', precio:12.25},
-  {key:'entrega_est', label:'Entrega estándar a pie de calle', families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ud', precio:12.91},
-  {key:'entrega_vol', label:'Entrega gran volumen a pie de calle', families:['melamina','hpl1','hpl2'], unit:'ud', precio:30.25},
-  {key:'subida_est', label:'Subida a domicilio estándar', families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ud', precio:45.38},
-  {key:'subida_vol', label:'Subida a domicilio gran volumen', families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'], unit:'ud', precio:75.62},
+  {key:'canto_melamina',label:'Canteado melamina',families:['melamina'],unit:'ml',precio:3.76},
+  {key:'canto_rechapado',label:'Canteado rechapado',families:['rechapado-pino','rechapado-roble','rechapado-haya'],unit:'ml',precio:3.46},
+  {key:'fresado_alistonado',label:'Fresado alistonado',families:['alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ml',precio:3.46},
+  {key:'esquina',label:'Esquina redondeada',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:15.70},
+  {key:'barnizado_natural',label:'Barnizado natural',families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'m²',precio:51.86,perM2:true},
+  {key:'barnizado_tintado',label:'Barnizado tintado',families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'m²',precio:51.86,perM2:true},
+  {key:'corte_chanflan',label:'Corte interior / chaflán canteado',families:['melamina','hpl1','hpl2'],unit:'ud',precio:41.86},
+  {key:'corte_chanflan_nat',label:'Corte interior / chaflán canteado',families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:40.33},
+  {key:'corte_r2',label:'Corte redondo 2 lados canteado',families:['melamina','hpl1','hpl2'],unit:'ud',precio:83.71},
+  {key:'corte_r4',label:'Corte redondo 4 lados canteado',families:['melamina','hpl1','hpl2'],unit:'ud',precio:167.43},
+  {key:'pasacables',label:'Pasacables',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:12.25},
+  {key:'entrega_est',label:'Entrega estándar a pie de calle',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:12.91},
+  {key:'entrega_vol',label:'Entrega gran volumen a pie de calle',families:['melamina','hpl1','hpl2'],unit:'ud',precio:30.25},
+  {key:'subida_est',label:'Subida a domicilio estándar',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:45.38},
+  {key:'subida_vol',label:'Subida a domicilio gran volumen',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:75.62},
 ];
 
 const FAMILY_LABELS = {
@@ -385,172 +242,94 @@ const FAMILY_LABELS = {
   'alistonado-pino':'Alistonado Pino','alistonado-roble':'Alistonado Roble','alistonado-haya':'Alistonado Haya'
 };
 
-// ============================================================
-// STATE
-// ============================================================
-let state = {
-  family: null,
-  acabado: null,
-  grosor: null,
-  product: null,
-  largo: 0,
-  ancho: 0,
-  m2: 0,
-  quoteLines: []
-};
+let state = { family:null, acabado:null, grosor:null, product:null, largo:0, ancho:0, m2:0, quoteLines:[], _currentTotal:0, _currentLines:[] };
 
-function fmt(n) {
-  return n.toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' €';
-}
+function fmt(n) { return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
 
-// ============================================================
-// FAMILY SELECTION
-// ============================================================
 function setFamily(fam) {
-  state.family = fam;
-  state.acabado = null;
-  state.grosor = null;
-  state.product = null;
+  state.family = fam; state.acabado = null; state.grosor = null; state.product = null;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === {
+    'melamina':'Melamina','hpl1':'HPL 1 cara','hpl2':'HPL 2 caras',
+    'rechapado-pino':'Rechapado Pino','rechapado-roble':'Rechapado Roble','rechapado-haya':'Rechapado Haya',
+    'alistonado-pino':'Alistonado Pino','alistonado-roble':'Alistonado Roble','alistonado-haya':'Alistonado Haya'
+  }[fam]));
 
-  // Active tab
-  document.querySelectorAll('.tab-btn').forEach(b => {
-    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${fam}'`));
-  });
-
-  // Populate acabado
-  const acabados = [...new Set(
-    PRODUCTS.filter(p => p.family === fam).map(p => p.acabado)
-  )];
+  const acabados = [...new Map(PRODUCTS.filter(p=>p.family===fam).map(p=>[p.acabado,p])).values()];
   const selA = document.getElementById('selAcabado');
-  selA.innerHTML = acabados.map(a => {
-    const label = PRODUCTS.find(p => p.family === fam && p.acabado === a).acabadoLabel;
-    return `<option value="${a}">${label}</option>`;
-  }).join('');
+  selA.innerHTML = acabados.map(p=>`<option value="${p.acabado}">${p.acabadoLabel}</option>`).join('');
   selA.disabled = false;
-
-  const selG = document.getElementById('selGrosor');
-  selG.innerHTML = '<option value="">— Selecciona acabado —</option>';
-  selG.disabled = true;
-
-  document.getElementById('precioUnitario').style.display = 'none';
-  updateProduct();
-  renderSupplements();
+  updateAcabado();
 }
 
-// ============================================================
-// PRODUCT SELECTION
-// ============================================================
-function updateProduct() {
-  const fam = state.family;
-  if (!fam) return;
-
-  const selA = document.getElementById('selAcabado');
-  const acabado = selA.value;
+function updateAcabado() {
+  const fam = state.family; if (!fam) return;
+  const acabado = document.getElementById('selAcabado').value;
   state.acabado = acabado;
-
   const selG = document.getElementById('selGrosor');
-
-  if (acabado) {
-    const grosores = PRODUCTS
-      .filter(p => p.family === fam && p.acabado === acabado)
-      .map(p => p.grosor);
-    selG.innerHTML = grosores.map(g => `<option value="${g}">${g} cm</option>`).join('');
-    selG.disabled = false;
-  } else {
-    selG.innerHTML = '<option value="">—</option>';
-    selG.disabled = true;
-  }
-
-  state.grosor = parseFloat(selG.value) || null;
-  const prod = PRODUCTS.find(p => p.family === fam && p.acabado === (state.acabado||'') && p.grosor === state.grosor);
-  state.product = prod || null;
-
-  if (prod) {
-    document.getElementById('precioUnitario').style.display = 'block';
-    document.getElementById('precioUnitarioVal').textContent = fmt(prod.precio) + ' / m²';
-  } else {
-    document.getElementById('precioUnitario').style.display = 'none';
-  }
-
-  renderSupplements();
-  calcDims();
+  const grosores = PRODUCTS.filter(p=>p.family===fam && p.acabado===acabado).map(p=>p.grosor);
+  selG.innerHTML = grosores.map(g=>`<option value="${g}">${g} cm</option>`).join('');
+  selG.disabled = false;
+  updateGrosor();
 }
 
-// ============================================================
-// DIMENSIONS
-// ============================================================
-function calcDims() {
-  const largo = parseFloat(document.getElementById('inpLargo').value) || 0;
-  const ancho = parseFloat(document.getElementById('inpAncho').value) || 0;
-  state.largo = largo;
-  state.ancho = ancho;
-  state.m2 = (largo * ancho) / 10000;
-
-  const meta = document.getElementById('dimsMeta');
-  if (largo > 0 && ancho > 0) {
-    meta.innerHTML = `Superficie: <strong>${state.m2.toFixed(4)} m²</strong>`;
+function updateGrosor() {
+  const fam = state.family; if (!fam) return;
+  state.grosor = parseFloat(document.getElementById('selGrosor').value) || null;
+  const prod = PRODUCTS.find(p=>p.family===fam && p.acabado===state.acabado && p.grosor===state.grosor);
+  state.product = prod || null;
+  const badge = document.getElementById('precioUnitario');
+  if (prod) {
+    badge.style.display = 'flex';
+    document.getElementById('precioUnitarioVal').textContent = fmt(prod.precio)+' / m²';
   } else {
-    meta.innerHTML = '';
+    badge.style.display = 'none';
   }
-
+  renderSupplements();
   renderSummary();
 }
 
-// ============================================================
-// SUPPLEMENTS
-// ============================================================
+function calcDims() {
+  state.largo = parseFloat(document.getElementById('inpLargo').value)||0;
+  state.ancho = parseFloat(document.getElementById('inpAncho').value)||0;
+  state.m2 = (state.largo * state.ancho) / 10000;
+  const meta = document.getElementById('dimsMeta');
+  meta.innerHTML = state.m2 > 0 ? `Superficie: <strong>${state.m2.toFixed(4)} m²</strong>` : '';
+  renderSummary();
+}
+
 function renderSupplements() {
   const fam = state.family;
   const container = document.getElementById('suppsContainer');
-  if (!fam) {
-    container.innerHTML = '<p style="color:var(--text-soft);font-size:.88rem">Selecciona primero un producto.</p>';
-    return;
-  }
+  if (!fam) { container.innerHTML = '<p style="color:var(--text-soft);font-size:.88rem">Selecciona primero un producto.</p>'; return; }
 
-  const applicable = SUPPLEMENTS.filter(s => s.families.includes(fam));
-  if (!applicable.length) {
-    container.innerHTML = '<p style="color:var(--text-soft);font-size:.88rem">No hay suplementos disponibles para este producto.</p>';
-    return;
-  }
-
-  // Group by category
+  const applicable = SUPPLEMENTS.filter(s=>s.families.includes(fam));
   const groups = {
-    'Canteado / Fresado': applicable.filter(s => s.key.startsWith('canto') || s.key.startsWith('fresado')),
-    'Esquinas': applicable.filter(s => s.key === 'esquina'),
-    'Barnizado': applicable.filter(s => s.key.startsWith('barnizado')),
-    'Cortes especiales': applicable.filter(s => s.key.startsWith('corte')),
-    'Otros': applicable.filter(s => s.key.startsWith('pasacables')),
-    'Envío y entrega': applicable.filter(s => s.key.startsWith('entrega') || s.key.startsWith('subida')),
+    'Canteado / Fresado': applicable.filter(s=>s.key.startsWith('canto')||s.key.startsWith('fresado')),
+    'Esquinas redondeadas': applicable.filter(s=>s.key==='esquina'),
+    'Barnizado': applicable.filter(s=>s.key.startsWith('barnizado')),
+    'Cortes especiales': applicable.filter(s=>s.key.startsWith('corte')),
+    'Otros': applicable.filter(s=>s.key.startsWith('pasacables')),
+    'Envío y entrega': applicable.filter(s=>s.key.startsWith('entrega')||s.key.startsWith('subida')),
   };
 
   let html = '';
-  for (const [groupName, items] of Object.entries(groups)) {
+  for (const [gName, items] of Object.entries(groups)) {
     if (!items.length) continue;
-    html += `<div class="supp-group"><div class="supp-group-title">${groupName}</div>`;
+    html += `<div class="supp-group"><div class="supp-group-title">${gName}</div>`;
     for (const s of items) {
-      const unitLabel = s.perM2 ? 'm² (auto)' : s.unit;
       html += `
         <div class="supp-item">
-          <div>
-            <div class="supp-name">${s.label}</div>
-            <div class="supp-price">${fmt(s.precio)} / ${s.unit}</div>
-          </div>
-          ${s.perM2
-            ? `<input type="number" class="supp-qty" id="sq_${s.key}" value="0" min="0" step="0.01" oninput="renderSummary()" placeholder="m²">`
-            : `<input type="number" class="supp-qty" id="sq_${s.key}" value="0" min="0" step="${s.unit==='ml'?'0.1':'1'}" oninput="renderSummary()">`
-          }
-          <span class="supp-unit">${unitLabel}</span>
+          <div><div class="supp-name">${s.label}</div><div class="supp-price">${fmt(s.precio)} / ${s.unit}</div></div>
+          <input type="number" class="supp-qty" id="sq_${s.key}" value="0" min="0" step="${s.unit==='ml'||s.unit==='m²'?'0.1':'1'}" oninput="renderSummary()">
+          <span class="supp-unit">${s.perM2?'m² (auto)':s.unit}</span>
         </div>`;
     }
     html += '</div>';
   }
-  container.innerHTML = html;
+  container.innerHTML = html || '<p style="color:var(--text-soft);font-size:.88rem">No hay suplementos para este producto.</p>';
   renderSummary();
 }
 
-// ============================================================
-// SUMMARY
-// ============================================================
 function renderSummary() {
   const prod = state.product;
   const m2 = state.m2;
@@ -560,100 +339,63 @@ function renderSummary() {
 
   if (!prod || m2 <= 0) {
     lineItemsEl.innerHTML = '<p class="empty-msg">Configura el producto y dimensiones.</p>';
-    totalBox.style.display = 'none';
-    btnAdd.disabled = true;
-    return;
+    totalBox.style.display = 'none'; btnAdd.disabled = true; return;
   }
 
-  let lines = [];
-  let total = 0;
-
-  // Board line
+  let lines = [], total = 0;
   const boardTotal = prod.precio * m2;
   total += boardTotal;
-  lines.push({
-    desc: `${FAMILY_LABELS[state.family]} ${prod.acabadoLabel} ${prod.grosor}cm — ${state.largo}×${state.ancho}cm (${m2.toFixed(4)} m²)`,
-    val: boardTotal
-  });
+  lines.push({desc:`${FAMILY_LABELS[state.family]} ${prod.acabadoLabel} ${prod.grosor}cm — ${state.largo}×${state.ancho} cm (${m2.toFixed(4)} m²)`, val:boardTotal});
 
-  // Supplements
-  const fam = state.family;
-  const applicable = SUPPLEMENTS.filter(s => s.families.includes(fam));
-  for (const s of applicable) {
-    const el = document.getElementById(`sq_${s.key}`);
-    if (!el) continue;
-    let qty = parseFloat(el.value) || 0;
-    if (s.perM2 && qty === 0) qty = m2; // auto-fill m2 if perM2 and qty is 0
-    if (s.perM2) qty = parseFloat(el.value) || m2;
-    if (qty <= 0) continue;
+  SUPPLEMENTS.filter(s=>s.families.includes(state.family)).forEach(s => {
+    const el = document.getElementById(`sq_${s.key}`); if (!el) return;
+    let qty = parseFloat(el.value)||0;
+    if (s.perM2 && qty === 0) return;
+    if (qty <= 0) return;
     const subtotal = s.precio * qty;
     total += subtotal;
-    lines.push({ desc: `${s.label} (${qty.toFixed(s.unit==='m²'?4:2)} ${s.unit})`, val: subtotal });
-  }
+    lines.push({desc:`${s.label} (${qty.toFixed(s.unit==='m²'||s.unit==='ml'?2:0)} ${s.unit})`, val:subtotal});
+  });
 
-  // Render lines
-  lineItemsEl.innerHTML = lines.map(l => `
+  lineItemsEl.innerHTML = lines.map(l=>`
     <div class="line-item">
       <div class="li-desc">${l.desc}</div>
       <div class="li-val">${fmt(l.val)}</div>
     </div>`).join('');
 
   const bi = total / 1.21;
-  const iva = total - bi;
-
   document.getElementById('totalBI').textContent = fmt(bi);
-  document.getElementById('totalIVA').textContent = fmt(iva);
+  document.getElementById('totalIVA').textContent = fmt(total - bi);
   document.getElementById('totalFinal').textContent = fmt(total);
-  totalBox.style.display = 'block';
-  btnAdd.disabled = false;
-
-  state._currentTotal = total;
-  state._currentLines = lines;
+  totalBox.style.display = 'block'; btnAdd.disabled = false;
+  state._currentTotal = total; state._currentLines = lines;
 }
 
-// ============================================================
-// QUOTE
-// ============================================================
 function addToQuote() {
-  if (!state._currentLines) return;
-  state.quoteLines.push({
-    lines: state._currentLines,
-    total: state._currentTotal
-  });
+  if (!state._currentLines.length) return;
+  state.quoteLines.push({lines:[...state._currentLines], total:state._currentTotal});
   renderQuote();
 }
 
 function renderQuote() {
   const section = document.getElementById('quoteSection');
   const container = document.getElementById('quoteLines');
-  if (!state.quoteLines.length) { section.style.display = 'none'; return; }
+  if (!state.quoteLines.length) { section.style.display='none'; return; }
   section.style.display = 'block';
-
   let grandTotal = 0;
-  container.innerHTML = state.quoteLines.map((q, i) => {
+  container.innerHTML = state.quoteLines.map((q,i) => {
     grandTotal += q.total;
-    return `
-      <div style="border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:.75rem;position:relative">
-        <button onclick="removeLine(${i})" style="position:absolute;top:.5rem;right:.5rem;background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:1rem">✕</button>
-        ${q.lines.map(l => `<div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-soft);padding:.2rem 0"><span>${l.desc}</span><span style="font-weight:600;color:var(--text)">${fmt(l.val)}</span></div>`).join('')}
-        <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-weight:700;font-size:.9rem">
-          <span>Subtotal</span><span>${fmt(q.total)}</span>
-        </div>
-      </div>`;
+    return `<div style="border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:.75rem;position:relative">
+      <button onclick="removeLine(${i})" style="position:absolute;top:.5rem;right:.5rem;background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:1rem" title="Eliminar">✕</button>
+      ${q.lines.map(l=>`<div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-soft);padding:.2rem 1.5rem .2rem 0"><span>${l.desc}</span><span style="font-weight:600;color:var(--text);white-space:nowrap;margin-left:.5rem">${fmt(l.val)}</span></div>`).join('')}
+      <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-weight:700;font-size:.9rem"><span>Subtotal</span><span>${fmt(q.total)}</span></div>
+    </div>`;
   }).join('');
-
   document.getElementById('grandTotal').textContent = fmt(grandTotal);
 }
 
-function removeLine(i) {
-  state.quoteLines.splice(i, 1);
-  renderQuote();
-}
-
-function clearQuote() {
-  state.quoteLines = [];
-  renderQuote();
-}
+function removeLine(i) { state.quoteLines.splice(i,1); renderQuote(); }
+function clearQuote() { state.quoteLines=[]; renderQuote(); }
 </script>
 </body>
 </html>
