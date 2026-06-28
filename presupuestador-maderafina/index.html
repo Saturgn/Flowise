@@ -1,401 +1,734 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presupuestador — Madera Fina</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f5f0eb; --surface: #ffffff; --border: #d6c9b8;
-      --accent: #8b6e4e; --accent-dark: #6b5039; --accent-light: #e8ddd0;
-      --text: #2c2018; --text-soft: #7a6555; --red: #c0392b;
-    }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-    header { background: var(--accent-dark); color: #fff; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
-    header h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: .02em; }
-    header span { font-size: .85rem; opacity: .75; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 1fr 360px; gap: 1.5rem; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; }
-    h2 { font-size: .95rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-dark); margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--accent-light); }
-    .field { margin-bottom: 1rem; }
-    label { display: block; font-size: .82rem; font-weight: 600; color: var(--text-soft); margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .04em; }
-    select, input[type=number] { width: 100%; padding: .55rem .75rem; border: 1.5px solid var(--border); border-radius: 6px; font-size: .95rem; background: #faf8f5; color: var(--text); transition: border-color .15s; appearance: none; -webkit-appearance: none; }
-    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b6e4e' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .75rem center; padding-right: 2rem; }
-    select:focus, input:focus { outline: none; border-color: var(--accent); }
-    select:disabled, input:disabled { opacity: .45; cursor: not-allowed; }
-    .dims-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: .5rem; align-items: end; }
-    .dims-sep { font-size: 1.2rem; color: var(--text-soft); padding-bottom: .5rem; text-align: center; }
-    .dims-meta { font-size: .8rem; color: var(--text-soft); margin-top: .4rem; }
-    .dims-meta strong { color: var(--accent-dark); font-size: .95rem; }
-    .tabs { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-    .tab-btn { padding: .4rem .9rem; border: 1.5px solid var(--border); border-radius: 20px; background: #faf8f5; font-size: .82rem; font-weight: 600; cursor: pointer; color: var(--text-soft); transition: all .15s; }
-    .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
-    .supp-group { margin-bottom: 1rem; }
-    .supp-group-title { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text-soft); margin-bottom: .5rem; }
-    .supp-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .5rem; padding: .5rem 0; border-bottom: 1px solid var(--accent-light); }
-    .supp-item:last-child { border-bottom: none; }
-    .supp-name { font-size: .88rem; }
-    .supp-price { font-size: .78rem; color: var(--text-soft); white-space: nowrap; }
-    .supp-qty { width: 70px; }
-    .supp-unit { font-size: .75rem; color: var(--text-soft); min-width: 24px; }
-    .summary-panel { position: sticky; top: 1.5rem; }
-    .line-items { margin-bottom: 1rem; }
-    .line-item { display: flex; justify-content: space-between; align-items: flex-start; padding: .45rem 0; border-bottom: 1px solid var(--accent-light); gap: .5rem; }
-    .line-item:last-child { border-bottom: none; }
-    .li-desc { font-size: .82rem; color: var(--text-soft); flex: 1; }
-    .li-val { font-size: .88rem; font-weight: 600; white-space: nowrap; }
-    .total-box { background: var(--accent-light); border-radius: 8px; padding: 1rem; margin-top: .75rem; }
-    .total-row { display: flex; justify-content: space-between; align-items: baseline; }
-    .total-label { font-size: .85rem; color: var(--text-soft); }
-    .total-val { font-size: 1rem; font-weight: 600; }
-    .total-iva { margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--border); }
-    .total-iva .total-label { font-size: 1rem; font-weight: 700; color: var(--text); }
-    .total-iva .total-val { font-size: 1.5rem; font-weight: 800; color: var(--accent-dark); }
-    .empty-msg { text-align: center; color: var(--text-soft); font-size: .88rem; padding: 2rem 0; }
-    .btn-add { width: 100%; padding: .7rem; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: .95rem; font-weight: 700; cursor: pointer; letter-spacing: .02em; transition: background .15s; margin-top: .5rem; }
-    .btn-add:hover { background: var(--accent-dark); }
-    .btn-add:disabled { opacity: .4; cursor: not-allowed; }
-    .btn-clear { width: 100%; padding: .5rem; background: transparent; color: var(--text-soft); border: 1.5px solid var(--border); border-radius: 8px; font-size: .82rem; cursor: pointer; margin-top: .5rem; transition: all .15s; }
-    .btn-clear:hover { border-color: var(--red); color: var(--red); }
-    .precio-badge { display: flex; justify-content: space-between; align-items: center; background: var(--accent-light); border-radius: 8px; padding: .75rem 1rem; margin-top: .25rem; }
-    .precio-badge span { font-size: .8rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: .04em; }
-    .precio-badge strong { font-size: 1.1rem; font-weight: 700; color: var(--accent-dark); }
-    @media (max-width: 768px) {
-      .container { grid-template-columns: 1fr; }
-      .summary-panel { position: static; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuestador — Madera Fina</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4efe9;--surf:#fff;--surf2:#faf7f3;--bord:#e0d3c0;--bord2:#c8b89a;
+  --acc:#b87333;--acc2:#8b5a1e;--acc-l:#f5e8d4;--acc-g:rgba(184,115,51,.18);
+  --txt:#1a0e04;--txt2:#5c3d1e;--txt3:#9a7a58;
+  --green:#2d6a3f;--red:#c0392b;
+  --sh:0 2px 14px rgba(0,0,0,.08);--sh2:0 6px 28px rgba(0,0,0,.12);
+  --r:12px;--r2:8px;
+}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#120800,#3d1f08);color:#fff;padding:.9rem 2rem;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.35)}
+.hdr-l{display:flex;align-items:center;gap:.9rem}
+.hdr-logo{width:38px;height:38px;background:var(--acc);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;letter-spacing:-.5px}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.72rem;opacity:.55;margin-top:1px}
+.hdr-badge{font-size:.72rem;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:.28rem .75rem;color:rgba(255,255,255,.75)}
+
+/* LAYOUT */
+.wrap{max-width:1220px;margin:0 auto;padding:1.5rem;display:grid;grid-template-columns:1fr 390px;gap:1.5rem;align-items:start}
+.card{background:var(--surf);border:1px solid var(--bord);border-radius:var(--r);padding:1.2rem 1.4rem;box-shadow:var(--sh);margin-bottom:1.2rem}
+.card:last-child{margin-bottom:0}
+.ctitle{display:flex;align-items:center;gap:.55rem;font-size:.77rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--acc2);margin-bottom:1rem;padding-bottom:.55rem;border-bottom:2px solid var(--acc-l)}
+.step{width:21px;height:21px;background:var(--acc);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:900;flex-shrink:0}
+
+/* TABS */
+.tabs{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.9rem}
+.tab{padding:.32rem .75rem;border:1.5px solid var(--bord2);border-radius:18px;background:var(--surf2);font-size:.75rem;font-weight:600;cursor:pointer;color:var(--txt2);transition:all .18s}
+.tab:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-l)}
+.tab.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:0 2px 8px var(--acc-g)}
+
+/* FIELDS */
+.f{margin-bottom:.8rem}
+.f:last-child{margin-bottom:0}
+.fl{display:block;font-size:.72rem;font-weight:700;color:var(--txt3);margin-bottom:.28rem;text-transform:uppercase;letter-spacing:.05em}
+select,input[type=number],input[type=text]{width:100%;padding:.48rem .7rem;border:1.5px solid var(--bord);border-radius:var(--r2);font-size:.9rem;background:var(--surf2);color:var(--txt);transition:border-color .15s,box-shadow .15s;appearance:none;-webkit-appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%238b5a1e' stroke-width='1.7' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .7rem center;padding-right:1.9rem}
+select:focus,input:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-g)}
+select:disabled,input:disabled{opacity:.38;cursor:not-allowed}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+
+/* PRICE BADGE */
+.pbadge{display:flex;justify-content:space-between;align-items:center;background:var(--acc-l);border-radius:var(--r2);padding:.65rem .9rem;margin-top:.45rem;border:1px solid var(--bord)}
+.pbadge .pl{font-size:.72rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em}
+.pbadge .pv{font-size:1.1rem;font-weight:900;color:var(--acc2)}
+
+/* ─── BOARD SVG ─── */
+.board-wrap{position:relative;user-select:none}
+.board-svg{width:100%;height:auto;display:block}
+
+/* Mode bar */
+.modebar{display:flex;gap:.3rem;margin-bottom:.7rem;background:var(--surf2);border:1px solid var(--bord);border-radius:10px;padding:.28rem}
+.mbtn{flex:1;padding:.38rem;border:none;border-radius:7px;font-size:.73rem;font-weight:700;cursor:pointer;color:var(--txt3);background:transparent;transition:all .18s;text-align:center;white-space:nowrap}
+.mbtn.on{background:var(--surf);color:var(--acc2);box-shadow:var(--sh)}
+
+/* Color swatches */
+.swatches{display:flex;gap:.45rem;align-items:center;flex-wrap:wrap;margin-top:.5rem}
+.sw{width:27px;height:27px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .15s;box-shadow:0 1px 5px rgba(0,0,0,.22);flex-shrink:0}
+.sw:hover{transform:scale(1.15)}
+.sw.on{border-color:var(--acc2);transform:scale(1.1);box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+/* Board legend */
+.legend{display:flex;justify-content:center;gap:1.2rem;margin-top:.55rem;flex-wrap:wrap}
+.leg-item{font-size:.7rem;color:var(--txt3);display:flex;align-items:center;gap:.3rem}
+
+/* Selections box */
+.sel-box{background:var(--surf2);border:1px solid var(--bord);border-radius:var(--r2);padding:.55rem .75rem;margin-top:.65rem;font-size:.77rem;color:var(--txt2);line-height:1.75}
+
+/* Supplement rows */
+.sg-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--txt3);margin-bottom:.35rem;margin-top:.6rem}
+.sr{display:grid;grid-template-columns:1fr 72px 28px;gap:.4rem;align-items:center;padding:.38rem 0;border-bottom:1px solid var(--acc-l)}
+.sr:last-child{border-bottom:none}
+.sr-name{font-size:.83rem}
+.sr-price{font-size:.7rem;color:var(--txt3)}
+.sr-qty{text-align:center}
+.sr-unit{font-size:.7rem;color:var(--txt3)}
+
+/* File upload */
+.fupload{border:2px dashed var(--bord2);border-radius:var(--r2);padding:.9rem;text-align:center;cursor:pointer;transition:all .2s;color:var(--txt3);font-size:.82rem}
+.fupload:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-l)}
+.fupload.has{border-style:solid;border-color:var(--acc);background:var(--acc-l)}
+
+/* SUMMARY */
+.sticky{position:sticky;top:1.5rem}
+.li{display:flex;justify-content:space-between;align-items:flex-start;padding:.38rem 0;border-bottom:1px solid var(--acc-l);gap:.5rem}
+.li:last-child{border-bottom:none}
+.li-d{font-size:.78rem;color:var(--txt3);flex:1;line-height:1.45}
+.li-v{font-size:.83rem;font-weight:700;white-space:nowrap;color:var(--txt)}
+.tbox{background:var(--acc-l);border-radius:var(--r2);padding:.85rem;margin-top:.65rem;border:1px solid var(--bord)}
+.tr{display:flex;justify-content:space-between;margin-bottom:.18rem}
+.tr .tl{font-size:.8rem;color:var(--txt3)}
+.tr .tv{font-size:.92rem;font-weight:600}
+.tr-big{padding-top:.5rem;margin-top:.4rem;border-top:1.5px solid var(--bord2)}
+.tr-big .tl{font-size:.92rem;font-weight:700;color:var(--txt)}
+.tr-big .tv{font-size:1.55rem;font-weight:900;color:var(--acc2)}
+
+/* Buttons */
+.btn-pri{width:100%;padding:.68rem;background:var(--acc);color:#fff;border:none;border-radius:var(--r2);font-size:.92rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:all .2s;margin-top:.55rem;box-shadow:0 3px 12px var(--acc-g)}
+.btn-pri:hover{background:var(--acc2);transform:translateY(-1px);box-shadow:0 5px 16px var(--acc-g)}
+.btn-pri:disabled{opacity:.32;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-sm{padding:.38rem .75rem;background:transparent;color:var(--txt3);border:1.5px solid var(--bord);border-radius:var(--r2);font-size:.75rem;cursor:pointer;transition:all .15s}
+.btn-sm:hover{border-color:var(--red);color:var(--red)}
+.btn-ico{padding:.38rem .75rem;background:var(--surf2);color:var(--txt2);border:1.5px solid var(--bord);border-radius:var(--r2);font-size:.75rem;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.25rem}
+.btn-ico:hover{border-color:var(--acc);color:var(--acc);background:var(--acc-l)}
+
+/* Quote lines */
+.ql{border:1px solid var(--bord);border-radius:var(--r2);padding:.7rem;margin-bottom:.55rem;position:relative;background:var(--surf)}
+.ql-hdr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.3rem}
+.ql-title{font-size:.8rem;font-weight:700;color:var(--txt2)}
+.ql-tot{font-size:.88rem;font-weight:900;color:var(--acc2)}
+.ql-detail{font-size:.72rem;color:var(--txt3);line-height:1.6}
+.btn-rm{position:absolute;top:.35rem;right:.35rem;background:none;border:none;cursor:pointer;color:var(--txt3);font-size:.95rem;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .15s}
+.btn-rm:hover{background:#fde8e8;color:var(--red)}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--acc2);color:#fff;padding:.6rem 1.2rem;border-radius:20px;font-size:.83rem;font-weight:600;box-shadow:var(--sh2);transition:transform .3s ease;z-index:200;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+.empty{text-align:center;color:var(--txt3);font-size:.83rem;padding:1.4rem 0}
+
+@media print{.hdr,.modebar,.btn-pri,.btn-sm,.btn-ico{display:none!important}.wrap{grid-template-columns:1fr;max-width:100%;padding:0}.sticky{position:static}.card{box-shadow:none;border-color:#ccc}}
+@media(max-width:780px){.wrap{grid-template-columns:1fr}.sticky{position:static}}
+</style>
 </head>
 <body>
 
-<header>
-  <div>
-    <h1>Madera Fina · Presupuestador</h1>
-    <span>Herramienta interna para técnicos · Precios IVA incluido</span>
+<div class="hdr">
+  <div class="hdr-l">
+    <div class="hdr-logo">MF</div>
+    <div><div class="hdr-title">Madera Fina · Presupuestador Técnico</div><div class="hdr-sub">Herramienta interna · Uso exclusivo técnicos</div></div>
   </div>
-</header>
-
-<div class="container">
-
-  <div>
-    <div class="card" style="margin-bottom:1.25rem">
-      <h2>1. Producto</h2>
-      <div class="tabs" id="familyTabs">
-        <button class="tab-btn" onclick="setFamily('melamina')">Melamina</button>
-        <button class="tab-btn" onclick="setFamily('hpl1')">HPL 1 cara</button>
-        <button class="tab-btn" onclick="setFamily('hpl2')">HPL 2 caras</button>
-        <button class="tab-btn" onclick="setFamily('rechapado-pino')">Rechapado Pino</button>
-        <button class="tab-btn" onclick="setFamily('rechapado-roble')">Rechapado Roble</button>
-        <button class="tab-btn" onclick="setFamily('rechapado-haya')">Rechapado Haya</button>
-        <button class="tab-btn" onclick="setFamily('alistonado-pino')">Alistonado Pino</button>
-        <button class="tab-btn" onclick="setFamily('alistonado-roble')">Alistonado Roble</button>
-        <button class="tab-btn" onclick="setFamily('alistonado-haya')">Alistonado Haya</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-        <div class="field">
-          <label>Acabado</label>
-          <select id="selAcabado" onchange="updateAcabado()">
-            <option value="">— Selecciona familia —</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Grosor</label>
-          <select id="selGrosor" onchange="updateGrosor()" disabled>
-            <option value="">— Selecciona acabado —</option>
-          </select>
-        </div>
-      </div>
-      <div class="precio-badge" id="precioUnitario" style="display:none">
-        <span>Precio base (IVA incl.)</span>
-        <strong id="precioUnitarioVal"></strong>
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:1.25rem">
-      <h2>2. Dimensiones</h2>
-      <div class="dims-row">
-        <div class="field" style="margin:0">
-          <label>Largo (cm)</label>
-          <input type="number" id="inpLargo" min="15" max="275" placeholder="ej. 200" oninput="calcDims()">
-        </div>
-        <div class="dims-sep">×</div>
-        <div class="field" style="margin:0">
-          <label>Ancho (cm)</label>
-          <input type="number" id="inpAncho" min="15" max="140" placeholder="ej. 60" oninput="calcDims()">
-        </div>
-      </div>
-      <div class="dims-meta" id="dimsMeta"></div>
-    </div>
-
-    <div class="card">
-      <h2>3. Suplementos</h2>
-      <div id="suppsContainer">
-        <p style="color:var(--text-soft);font-size:.88rem">Selecciona primero un producto.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="summary-panel">
-    <div class="card">
-      <h2>Resumen</h2>
-      <div class="line-items" id="lineItems">
-        <p class="empty-msg">Configura el producto para ver el presupuesto.</p>
-      </div>
-      <div class="total-box" id="totalBox" style="display:none">
-        <div class="total-row">
-          <span class="total-label">Base imponible</span>
-          <span class="total-val" id="totalBI">—</span>
-        </div>
-        <div class="total-row" style="margin-top:.25rem">
-          <span class="total-label">IVA (21%)</span>
-          <span class="total-val" id="totalIVA">—</span>
-        </div>
-        <div class="total-row total-iva">
-          <span class="total-label">TOTAL</span>
-          <span class="total-val" id="totalFinal">—</span>
-        </div>
-      </div>
-      <button class="btn-add" id="btnAdd" onclick="addToQuote()" disabled>+ Añadir al presupuesto</button>
-
-      <div id="quoteSection" style="display:none;margin-top:1.5rem">
-        <h2>Partidas añadidas</h2>
-        <div id="quoteLines"></div>
-        <div class="total-box" style="margin-top:.75rem">
-          <div class="total-row total-iva">
-            <span class="total-label">TOTAL PRESUPUESTO</span>
-            <span class="total-val" id="grandTotal">0,00 €</span>
-          </div>
-        </div>
-        <button class="btn-clear" onclick="clearQuote()">Limpiar presupuesto</button>
-      </div>
-    </div>
-  </div>
-
+  <div class="hdr-badge">Precios IVA incluido</div>
 </div>
 
+<div class="wrap">
+<div>
+
+<!-- 1. PRODUCTO -->
+<div class="card">
+  <div class="ctitle"><span class="step">1</span>Selección de producto</div>
+  <div class="tabs" id="tabs">
+    <button class="tab" data-f="melamina" onclick="setFamily('melamina')">Melamina</button>
+    <button class="tab" data-f="hpl1" onclick="setFamily('hpl1')">HPL 1 cara</button>
+    <button class="tab" data-f="hpl2" onclick="setFamily('hpl2')">HPL 2 caras</button>
+    <button class="tab" data-f="rechapado-pino" onclick="setFamily('rechapado-pino')">Rechap. Pino</button>
+    <button class="tab" data-f="rechapado-roble" onclick="setFamily('rechapado-roble')">Rechap. Roble</button>
+    <button class="tab" data-f="rechapado-haya" onclick="setFamily('rechapado-haya')">Rechap. Haya</button>
+    <button class="tab" data-f="alistonado-pino" onclick="setFamily('alistonado-pino')">Alist. Pino</button>
+    <button class="tab" data-f="alistonado-roble" onclick="setFamily('alistonado-roble')">Alist. Roble</button>
+    <button class="tab" data-f="alistonado-haya" onclick="setFamily('alistonado-haya')">Alist. Haya</button>
+  </div>
+  <div class="g2">
+    <div class="f"><label class="fl">Acabado</label><select id="selAcabado" onchange="updateAcabado()" disabled><option>— Selecciona familia —</option></select></div>
+    <div class="f"><label class="fl">Grosor</label><select id="selGrosor" onchange="updateGrosor()" disabled><option>— Selecciona acabado —</option></select></div>
+  </div>
+  <div id="pbadge" style="display:none" class="pbadge"><span class="pl">Precio tablero · IVA incl.</span><span class="pv" id="pbval"></span></div>
+</div>
+
+<!-- 2. DIMENSIONES -->
+<div class="card">
+  <div class="ctitle"><span class="step">2</span>Dimensiones</div>
+  <div class="g2">
+    <div class="f"><label class="fl">Largo (cm)</label><input type="number" id="iLargo" value="100" min="15" max="275" oninput="onDims()"></div>
+    <div class="f"><label class="fl">Ancho (cm)</label><input type="number" id="iAncho" value="100" min="15" max="140" oninput="onDims()"></div>
+  </div>
+  <div id="dimsbox" class="pbadge" style="display:none"><span class="pl">Superficie calculada</span><span class="pv" id="dimsval"></span></div>
+</div>
+
+<!-- 3. TABLERO INTERACTIVO -->
+<div class="card">
+  <div class="ctitle"><span class="step">3</span>Configuración del tablero</div>
+  <p style="font-size:.77rem;color:var(--txt3);margin-bottom:.75rem;line-height:1.6">
+    Activa un modo y haz clic sobre el tablero: <strong>bordes</strong> para canteado · <strong>esquinas A-B-C-D</strong> para redondeado · <strong>interior</strong> para pasacables
+  </p>
+
+  <div class="modebar">
+    <button class="mbtn on" id="mC" onclick="setMode('C')">✂ Canteado</button>
+    <button class="mbtn" id="mE" onclick="setMode('E')">⬡ Esquinas</button>
+    <button class="mbtn" id="mP" onclick="setMode('P')">⬤ Pasacables</button>
+  </div>
+
+  <!-- Pasacables color (shown in P mode) -->
+  <div id="pcolorRow" style="display:none;margin-bottom:.7rem">
+    <label class="fl">Color del pasacables</label>
+    <div class="swatches">
+      <div class="sw on" data-c="Negro" data-h="#1a1a1a" style="background:#1a1a1a" title="Negro" onclick="setPcColor(this,'Negro','#1a1a1a')"></div>
+      <div class="sw" data-c="Blanco" data-h="#f0eeec" style="background:#f0eeec;outline:1px solid #ccc" title="Blanco" onclick="setPcColor(this,'Blanco','#f0eeec')"></div>
+      <div class="sw" data-c="Aluminio" data-h="#9e9e9e" style="background:#9e9e9e" title="Aluminio" onclick="setPcColor(this,'Aluminio','#9e9e9e')"></div>
+      <div class="sw" data-c="Cromo" data-h="#c8c8c8" style="background:linear-gradient(135deg,#e8e8e8,#b0b0b0)" title="Cromo" onclick="setPcColor(this,'Cromo','#c8c8c8')"></div>
+      <div class="sw" data-c="Madera" data-h="#8b6e4e" style="background:#8b6e4e" title="Madera" onclick="setPcColor(this,'Madera','#8b6e4e')"></div>
+      <span id="pcColorLabel" style="font-size:.75rem;color:var(--txt3);margin-left:.3rem">Negro</span>
+    </div>
+  </div>
+
+  <!-- SVG BOARD -->
+  <div class="board-wrap">
+    <svg id="bsvg" class="board-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="wg" patternUnits="userSpaceOnUse" width="120" height="60">
+          <rect width="120" height="60" fill="#d4b48c"/>
+          <path d="M0,12 Q30,10 60,13 Q90,16 120,12" stroke="#c4a07c" stroke-width="1.2" fill="none" opacity=".6"/>
+          <path d="M0,28 Q25,30 60,27 Q95,24 120,28" stroke="#bf9870" stroke-width="1.8" fill="none" opacity=".45"/>
+          <path d="M0,45 Q40,43 70,47 Q100,50 120,44" stroke="#c4a07c" stroke-width="1" fill="none" opacity=".5"/>
+        </pattern>
+        <filter id="bsh"><feDropShadow dx="3" dy="4" stdDeviation="6" flood-opacity=".18"/></filter>
+      </defs>
+
+      <!-- Board body -->
+      <rect id="bRect" x="90" y="65" width="320" height="270" rx="3" fill="url(#wg)" stroke="#a07840" stroke-width="2" filter="url(#bsh)"/>
+
+      <!-- Edge CLICK ZONES (wide invisible) + visual lines -->
+      <!-- Superior -->
+      <line id="eL_superior" x1="90" y1="65" x2="410" y2="65" stroke="#a07840" stroke-width="2.5" stroke-linecap="round" style="pointer-events:none"/>
+      <rect class="ez" x="90" y="52" width="320" height="26" fill="transparent" style="cursor:pointer" onclick="toggleEdge('superior',event)"/>
+      <!-- Inferior -->
+      <line id="eL_inferior" x1="90" y1="335" x2="410" y2="335" stroke="#a07840" stroke-width="2.5" stroke-linecap="round" style="pointer-events:none"/>
+      <rect class="ez" x="90" y="322" width="320" height="26" fill="transparent" style="cursor:pointer" onclick="toggleEdge('inferior',event)"/>
+      <!-- Izquierdo -->
+      <line id="eL_izquierdo" x1="90" y1="65" x2="90" y2="335" stroke="#a07840" stroke-width="2.5" stroke-linecap="round" style="pointer-events:none"/>
+      <rect class="ez" x="77" y="65" width="26" height="270" fill="transparent" style="cursor:pointer" onclick="toggleEdge('izquierdo',event)"/>
+      <!-- Derecho -->
+      <line id="eL_derecho" x1="410" y1="65" x2="410" y2="335" stroke="#a07840" stroke-width="2.5" stroke-linecap="round" style="pointer-events:none"/>
+      <rect class="ez" x="397" y="65" width="26" height="270" fill="transparent" style="cursor:pointer" onclick="toggleEdge('derecho',event)"/>
+
+      <!-- Board interior (pasacables) -->
+      <rect id="bInt" x="108" y="83" width="284" height="234" fill="transparent" style="cursor:default" onclick="boardClick(event)"/>
+
+      <!-- Corner circles A=TL B=TR C=BR D=BL -->
+      <g id="cg_A" onclick="toggleCorner('A',event)" style="cursor:pointer">
+        <circle cx="90" cy="65" r="17" fill="#fff" stroke="#a07840" stroke-width="2" id="cc_A"/>
+        <text x="90" y="65" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="800" fill="#8b5a1e" id="ct_A">A</text>
+      </g>
+      <g id="cg_B" onclick="toggleCorner('B',event)" style="cursor:pointer">
+        <circle cx="410" cy="65" r="17" fill="#fff" stroke="#a07840" stroke-width="2" id="cc_B"/>
+        <text x="410" y="65" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="800" fill="#8b5a1e" id="ct_B">B</text>
+      </g>
+      <g id="cg_C" onclick="toggleCorner('C',event)" style="cursor:pointer">
+        <circle cx="410" cy="335" r="17" fill="#fff" stroke="#a07840" stroke-width="2" id="cc_C"/>
+        <text x="410" y="335" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="800" fill="#8b5a1e" id="ct_C">C</text>
+      </g>
+      <g id="cg_D" onclick="toggleCorner('D',event)" style="cursor:pointer">
+        <circle cx="90" cy="335" r="17" fill="#fff" stroke="#a07840" stroke-width="2" id="cc_D"/>
+        <text x="90" y="335" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="800" fill="#8b5a1e" id="ct_D">D</text>
+      </g>
+
+      <!-- Dimension labels -->
+      <text id="dTop" x="250" y="44" text-anchor="middle" font-size="11" fill="#9a7a58" font-weight="600">ANCHO: 100 cm</text>
+      <text id="dBot" x="250" y="365" text-anchor="middle" font-size="11" fill="#9a7a58" font-weight="600">ANCHO: 100 cm</text>
+      <text id="dLeft" x="22" y="200" text-anchor="middle" font-size="11" fill="#9a7a58" font-weight="600" transform="rotate(-90,22,200)">LARGO: 100 cm</text>
+      <text id="dRight" x="478" y="200" text-anchor="middle" font-size="11" fill="#9a7a58" font-weight="600" transform="rotate(90,478,200)">LARGO: 100 cm</text>
+
+      <!-- Pasacables group -->
+      <g id="pcGroup"></g>
+
+      <!-- Edge label hints (shown in C mode) -->
+      <text id="eLbl_superior" x="250" y="60" text-anchor="middle" font-size="9" fill="#b87333" font-weight="700" opacity="0" pointer-events="none">SUPERIOR</text>
+      <text id="eLbl_inferior" x="250" y="351" text-anchor="middle" font-size="9" fill="#b87333" font-weight="700" opacity="0" pointer-events="none">INFERIOR</text>
+      <text id="eLbl_izquierdo" x="37" y="200" text-anchor="middle" font-size="9" fill="#b87333" font-weight="700" opacity="0" pointer-events="none" transform="rotate(-90,37,200)">IZQUIERDO</text>
+      <text id="eLbl_derecho" x="463" y="200" text-anchor="middle" font-size="9" fill="#b87333" font-weight="700" opacity="0" pointer-events="none" transform="rotate(90,463,200)">DERECHO</text>
+    </svg>
+  </div>
+
+  <div class="legend">
+    <span class="leg-item"><span style="width:22px;height:3px;background:var(--acc);border-radius:2px;display:inline-block"></span>Canto seleccionado</span>
+    <span class="leg-item"><span style="width:14px;height:14px;background:var(--acc);border-radius:50%;display:inline-block"></span>Esquina seleccionada</span>
+    <span class="leg-item"><span style="width:12px;height:12px;background:#1a1a1a;border-radius:50%;border:2px solid var(--acc);display:inline-block"></span>Pasacables</span>
+  </div>
+
+  <div id="selBox" class="sel-box" style="display:none"></div>
+</div>
+
+<!-- 4. SUPLEMENTOS -->
+<div class="card">
+  <div class="ctitle"><span class="step">4</span>Suplementos adicionales</div>
+  <div id="supps"><p style="color:var(--txt3);font-size:.83rem">Selecciona primero un producto.</p></div>
+</div>
+
+<!-- 5. CORTE ESPECIAL -->
+<div class="card">
+  <div class="ctitle"><span class="step">5</span>Corte especial y plano</div>
+  <div class="f">
+    <label class="fl">Tipo de corte especial</label>
+    <select id="selCorte" onchange="onCorte()">
+      <option value="">Sin corte especial</option>
+      <option value="chanflan">Corte interior / Chaflán canteado</option>
+      <option value="r2">Corte redondo 2 lados canteado</option>
+      <option value="r4">Corte redondo 4 lados canteado</option>
+    </select>
+  </div>
+  <div id="corteExt" style="display:none">
+    <div class="f"><label class="fl">Notas / medidas del corte</label><input type="text" id="iNota" placeholder="Describe ubicación, medidas o referencia…" oninput="calcSummary()"></div>
+    <div class="f">
+      <label class="fl">Adjuntar plano</label>
+      <label for="fFile" class="fupload" id="fzone">
+        <div id="finner"><div style="font-size:1.4rem;margin-bottom:.25rem">📐</div><div>Clic o arrastra el plano aquí</div><div style="font-size:.7rem;margin-top:.2rem;opacity:.7">JPG · PNG · PDF · máx. 10 MB</div></div>
+      </label>
+      <input type="file" id="fFile" accept="image/*,.pdf" style="display:none" onchange="onFile(event)">
+    </div>
+  </div>
+</div>
+
+</div><!-- /left -->
+
+<!-- RIGHT: SUMMARY -->
+<div class="sticky">
+<div class="card">
+  <div class="ctitle" style="justify-content:space-between">
+    <span style="display:flex;align-items:center;gap:.55rem"><span class="step" style="background:var(--green)">€</span>Resumen en tiempo real</span>
+    <div style="display:flex;gap:.35rem">
+      <button class="btn-ico" onclick="doPrint()">🖨️ Imprimir</button>
+      <button class="btn-ico" onclick="doCopy()">📋 Copiar</button>
+    </div>
+  </div>
+
+  <div id="lineItems"><p class="empty">Configura el producto y dimensiones.</p></div>
+
+  <div id="totalBox" style="display:none">
+    <div class="tbox">
+      <div class="tr"><span class="tl">Base imponible</span><span class="tv" id="tBI">—</span></div>
+      <div class="tr"><span class="tl">IVA 21%</span><span class="tv" id="tIVA">—</span></div>
+      <div class="tr tr-big"><span class="tl">TOTAL</span><span class="tv" id="tFinal">—</span></div>
+    </div>
+    <button class="btn-pri" id="btnAdd" onclick="addLine()">+ Añadir al presupuesto</button>
+  </div>
+
+  <!-- Accumulated quote -->
+  <div id="qSection" style="display:none;margin-top:1.4rem">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.55rem">
+      <span style="font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--acc2)">Partidas acumuladas</span>
+      <button class="btn-sm" onclick="clearAll()">Limpiar todo</button>
+    </div>
+    <div id="qLines"></div>
+    <div class="tbox" style="margin-top:.45rem">
+      <div class="tr tr-big"><span class="tl">TOTAL PRESUPUESTO</span><span class="tv" id="grandTotal">0,00 €</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- /wrap -->
+<div class="toast" id="toast"></div>
+
 <script>
-const PRODUCTS = [
-  {family:'melamina',acabado:'basic',acabadoLabel:'Basic',grosor:1.9,precio:51.57},
-  {family:'melamina',acabado:'platinium',acabadoLabel:'Platinium',grosor:1.9,precio:58.44},
-  {family:'melamina',acabado:'basic',acabadoLabel:'Basic',grosor:3.0,precio:68.18},
-  {family:'melamina',acabado:'platinium',acabadoLabel:'Platinium',grosor:3.0,precio:83.49},
-  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:1.0,precio:140.26},
-  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:1.0,precio:150.65},
-  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:2.0,precio:161.04},
-  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:2.0,precio:171.43},
-  {family:'hpl1',acabado:'gold',acabadoLabel:'Gold',grosor:2.0,precio:264.94},
-  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:4.0,precio:207.80},
-  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:4.0,precio:238.97},
-  {family:'hpl1',acabado:'gold',acabadoLabel:'Gold',grosor:4.0,precio:327.28},
-  {family:'hpl1',acabado:'basic',acabadoLabel:'Basic',grosor:6.0,precio:389.62},
-  {family:'hpl1',acabado:'platinium',acabadoLabel:'Platinium',grosor:6.0,precio:431.18},
-  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:1.0,precio:187.02},
-  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:1.0,precio:202.60},
-  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:2.0,precio:207.80},
-  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:2.0,precio:223.38},
-  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:4.0,precio:270.14},
-  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:4.0,precio:311.70},
-  {family:'hpl2',acabado:'gold',acabadoLabel:'Gold',grosor:4.0,precio:425.98},
-  {family:'hpl2',acabado:'basic',acabadoLabel:'Basic',grosor:6.0,precio:415.59},
-  {family:'hpl2',acabado:'platinium',acabadoLabel:'Platinium',grosor:6.0,precio:457.15},
-  {family:'rechapado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.1,precio:56.01},
-  {family:'rechapado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.9,precio:68.62},
-  {family:'rechapado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.1,precio:76.23},
-  {family:'rechapado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.1,precio:79.57},
-  {family:'rechapado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.9,precio:90.60},
-  {family:'rechapado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.1,precio:102.20},
-  {family:'rechapado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.1,precio:64.72},
-  {family:'rechapado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.9,precio:73.43},
-  {family:'rechapado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.1,precio:91.60},
-  {family:'alistonado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.8,precio:98.01},
-  {family:'alistonado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.0,precio:133.79},
-  {family:'alistonado-pino',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:4.0,precio:219.78},
-  {family:'alistonado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.8,precio:198.06},
-  {family:'alistonado-roble',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.0,precio:297.36},
-  {family:'alistonado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:1.8,precio:145.45},
-  {family:'alistonado-haya',acabado:'natural',acabadoLabel:'Sin barnizar',grosor:3.0,precio:220.57},
+// ═══════════ DATA ═══════════
+const PRODS=[
+  {f:'melamina',a:'basic',al:'Basic',g:1.9,p:51.57},{f:'melamina',a:'platinium',al:'Platinium',g:1.9,p:58.44},
+  {f:'melamina',a:'basic',al:'Basic',g:3.0,p:68.18},{f:'melamina',a:'platinium',al:'Platinium',g:3.0,p:83.49},
+  {f:'hpl1',a:'basic',al:'Basic',g:1.0,p:140.26},{f:'hpl1',a:'platinium',al:'Platinium',g:1.0,p:150.65},
+  {f:'hpl1',a:'basic',al:'Basic',g:2.0,p:161.04},{f:'hpl1',a:'platinium',al:'Platinium',g:2.0,p:171.43},
+  {f:'hpl1',a:'gold',al:'Gold',g:2.0,p:264.94},{f:'hpl1',a:'basic',al:'Basic',g:4.0,p:207.80},
+  {f:'hpl1',a:'platinium',al:'Platinium',g:4.0,p:238.97},{f:'hpl1',a:'gold',al:'Gold',g:4.0,p:327.28},
+  {f:'hpl1',a:'basic',al:'Basic',g:6.0,p:389.62},{f:'hpl1',a:'platinium',al:'Platinium',g:6.0,p:431.18},
+  {f:'hpl2',a:'basic',al:'Basic',g:1.0,p:187.02},{f:'hpl2',a:'platinium',al:'Platinium',g:1.0,p:202.60},
+  {f:'hpl2',a:'basic',al:'Basic',g:2.0,p:207.80},{f:'hpl2',a:'platinium',al:'Platinium',g:2.0,p:223.38},
+  {f:'hpl2',a:'basic',al:'Basic',g:4.0,p:270.14},{f:'hpl2',a:'platinium',al:'Platinium',g:4.0,p:311.70},
+  {f:'hpl2',a:'gold',al:'Gold',g:4.0,p:425.98},{f:'hpl2',a:'basic',al:'Basic',g:6.0,p:415.59},
+  {f:'hpl2',a:'platinium',al:'Platinium',g:6.0,p:457.15},
+  {f:'rechapado-pino',a:'natural',al:'Sin barnizar',g:1.1,p:56.01},{f:'rechapado-pino',a:'natural',al:'Sin barnizar',g:1.9,p:68.62},{f:'rechapado-pino',a:'natural',al:'Sin barnizar',g:3.1,p:76.23},
+  {f:'rechapado-roble',a:'natural',al:'Sin barnizar',g:1.1,p:79.57},{f:'rechapado-roble',a:'natural',al:'Sin barnizar',g:1.9,p:90.60},{f:'rechapado-roble',a:'natural',al:'Sin barnizar',g:3.1,p:102.20},
+  {f:'rechapado-haya',a:'natural',al:'Sin barnizar',g:1.1,p:64.72},{f:'rechapado-haya',a:'natural',al:'Sin barnizar',g:1.9,p:73.43},{f:'rechapado-haya',a:'natural',al:'Sin barnizar',g:3.1,p:91.60},
+  {f:'alistonado-pino',a:'natural',al:'Sin barnizar',g:1.8,p:98.01},{f:'alistonado-pino',a:'natural',al:'Sin barnizar',g:3.0,p:133.79},{f:'alistonado-pino',a:'natural',al:'Sin barnizar',g:4.0,p:219.78},
+  {f:'alistonado-roble',a:'natural',al:'Sin barnizar',g:1.8,p:198.06},{f:'alistonado-roble',a:'natural',al:'Sin barnizar',g:3.0,p:297.36},
+  {f:'alistonado-haya',a:'natural',al:'Sin barnizar',g:1.8,p:145.45},{f:'alistonado-haya',a:'natural',al:'Sin barnizar',g:3.0,p:220.57},
 ];
 
-const SUPPLEMENTS = [
-  {key:'canto_melamina',label:'Canteado melamina',families:['melamina'],unit:'ml',precio:3.76},
-  {key:'canto_rechapado',label:'Canteado rechapado',families:['rechapado-pino','rechapado-roble','rechapado-haya'],unit:'ml',precio:3.46},
-  {key:'fresado_alistonado',label:'Fresado alistonado',families:['alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ml',precio:3.46},
-  {key:'esquina',label:'Esquina redondeada',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:15.70},
-  {key:'barnizado_natural',label:'Barnizado natural',families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'m²',precio:51.86,perM2:true},
-  {key:'barnizado_tintado',label:'Barnizado tintado',families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'m²',precio:51.86,perM2:true},
-  {key:'corte_chanflan',label:'Corte interior / chaflán canteado',families:['melamina','hpl1','hpl2'],unit:'ud',precio:41.86},
-  {key:'corte_chanflan_nat',label:'Corte interior / chaflán canteado',families:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:40.33},
-  {key:'corte_r2',label:'Corte redondo 2 lados canteado',families:['melamina','hpl1','hpl2'],unit:'ud',precio:83.71},
-  {key:'corte_r4',label:'Corte redondo 4 lados canteado',families:['melamina','hpl1','hpl2'],unit:'ud',precio:167.43},
-  {key:'pasacables',label:'Pasacables',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:12.25},
-  {key:'entrega_est',label:'Entrega estándar a pie de calle',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:12.91},
-  {key:'entrega_vol',label:'Entrega gran volumen a pie de calle',families:['melamina','hpl1','hpl2'],unit:'ud',precio:30.25},
-  {key:'subida_est',label:'Subida a domicilio estándar',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:45.38},
-  {key:'subida_vol',label:'Subida a domicilio gran volumen',families:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],unit:'ud',precio:75.62},
-];
-
-const FAMILY_LABELS = {
-  'melamina':'Tablero Melamina','hpl1':'Tablero HPL 1 cara','hpl2':'Tablero HPL 2 caras',
+const FLAB={'melamina':'Tablero Melamina','hpl1':'Tablero HPL 1 cara','hpl2':'Tablero HPL 2 caras',
   'rechapado-pino':'Rechapado Pino','rechapado-roble':'Rechapado Roble','rechapado-haya':'Rechapado Haya',
-  'alistonado-pino':'Alistonado Pino','alistonado-roble':'Alistonado Roble','alistonado-haya':'Alistonado Haya'
+  'alistonado-pino':'Alistonado Pino','alistonado-roble':'Alistonado Roble','alistonado-haya':'Alistonado Haya'};
+
+// Canto precio por ml según familia (HPL incluido → 0)
+const CANTO_P={'melamina':3.76,'hpl1':0,'hpl2':0,
+  'rechapado-pino':3.46,'rechapado-roble':3.46,'rechapado-haya':3.46,
+  'alistonado-pino':3.46,'alistonado-roble':3.46,'alistonado-haya':3.46};
+const ESQUINA_P=15.70;
+const PC_P=12.25;
+const CORTE_P={
+  chanflan:{melamina:41.86,hpl1:41.86,hpl2:41.86,'rechapado-pino':40.33,'rechapado-roble':40.33,'rechapado-haya':40.33,'alistonado-pino':40.33,'alistonado-roble':40.33,'alistonado-haya':40.33},
+  r2:{melamina:83.71,hpl1:83.71,hpl2:83.71},
+  r4:{melamina:167.43,hpl1:167.43,hpl2:167.43},
+};
+const SUPPS=[
+  {k:'barn_nat',l:'Barnizado natural',fs:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],u:'m²',p:51.86,m2:true},
+  {k:'barn_tin',l:'Barnizado tintado',fs:['rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],u:'m²',p:51.86,m2:true},
+  {k:'ent_est',l:'Entrega estándar a pie de calle',fs:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],u:'ud',p:12.91},
+  {k:'ent_vol',l:'Entrega gran volumen',fs:['melamina','hpl1','hpl2'],u:'ud',p:30.25},
+  {k:'sub_est',l:'Subida a domicilio estándar',fs:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],u:'ud',p:45.38},
+  {k:'sub_vol',l:'Subida a domicilio gran volumen',fs:['melamina','hpl1','hpl2','rechapado-pino','rechapado-roble','rechapado-haya','alistonado-pino','alistonado-roble','alistonado-haya'],u:'ud',p:75.62},
+];
+
+// ═══════════ STATE ═══════════
+let S={
+  fam:null,acab:null,grosor:null,prod:null,
+  largo:100,ancho:100,m2:1,
+  mode:'C',
+  edges:{superior:false,inferior:false,izquierdo:false,derecho:false},
+  corners:{A:false,B:false,C:false,D:false},
+  pcs:[],pcColor:'Negro',pcHex:'#1a1a1a',
+  corte:'',nota:'',filename:'',
+  quote:[],
+  _lines:[],_total:0
 };
 
-let state = { family:null, acabado:null, grosor:null, product:null, largo:0, ancho:0, m2:0, quoteLines:[], _currentTotal:0, _currentLines:[] };
+// ═══════════ UTILS ═══════════
+const fmt=n=>n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const fmtN=(n,d=2)=>n.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 
-function fmt(n) { return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' €'; }
-
-function setFamily(fam) {
-  state.family = fam; state.acabado = null; state.grosor = null; state.product = null;
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === {
-    'melamina':'Melamina','hpl1':'HPL 1 cara','hpl2':'HPL 2 caras',
-    'rechapado-pino':'Rechapado Pino','rechapado-roble':'Rechapado Roble','rechapado-haya':'Rechapado Haya',
-    'alistonado-pino':'Alistonado Pino','alistonado-roble':'Alistonado Roble','alistonado-haya':'Alistonado Haya'
-  }[fam]));
-
-  const acabados = [...new Map(PRODUCTS.filter(p=>p.family===fam).map(p=>[p.acabado,p])).values()];
-  const selA = document.getElementById('selAcabado');
-  selA.innerHTML = acabados.map(p=>`<option value="${p.acabado}">${p.acabadoLabel}</option>`).join('');
-  selA.disabled = false;
+// ═══════════ PRODUCT ═══════════
+function setFamily(f){
+  S.fam=f;S.acab=null;S.grosor=null;S.prod=null;
+  S.edges={superior:false,inferior:false,izquierdo:false,derecho:false};
+  S.corners={A:false,B:false,C:false,D:false};S.pcs=[];
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
+  const acabs=[...new Map(PRODS.filter(p=>p.f===f).map(p=>[p.a,p])).values()];
+  const sA=document.getElementById('selAcabado');
+  sA.innerHTML=acabs.map(p=>`<option value="${p.a}">${p.al}</option>`).join('');
+  sA.disabled=false;
   updateAcabado();
+  renderSupps();
+  renderBoard();
 }
-
-function updateAcabado() {
-  const fam = state.family; if (!fam) return;
-  const acabado = document.getElementById('selAcabado').value;
-  state.acabado = acabado;
-  const selG = document.getElementById('selGrosor');
-  const grosores = PRODUCTS.filter(p=>p.family===fam && p.acabado===acabado).map(p=>p.grosor);
-  selG.innerHTML = grosores.map(g=>`<option value="${g}">${g} cm</option>`).join('');
-  selG.disabled = false;
+function updateAcabado(){
+  if(!S.fam)return;
+  S.acab=document.getElementById('selAcabado').value;
+  const gs=PRODS.filter(p=>p.f===S.fam&&p.a===S.acab).map(p=>p.g);
+  const sG=document.getElementById('selGrosor');
+  sG.innerHTML=gs.map(g=>`<option value="${g}">${g} cm</option>`).join('');
+  sG.disabled=false;
   updateGrosor();
 }
-
-function updateGrosor() {
-  const fam = state.family; if (!fam) return;
-  state.grosor = parseFloat(document.getElementById('selGrosor').value) || null;
-  const prod = PRODUCTS.find(p=>p.family===fam && p.acabado===state.acabado && p.grosor===state.grosor);
-  state.product = prod || null;
-  const badge = document.getElementById('precioUnitario');
-  if (prod) {
-    badge.style.display = 'flex';
-    document.getElementById('precioUnitarioVal').textContent = fmt(prod.precio)+' / m²';
-  } else {
-    badge.style.display = 'none';
-  }
-  renderSupplements();
-  renderSummary();
+function updateGrosor(){
+  if(!S.fam)return;
+  S.grosor=parseFloat(document.getElementById('selGrosor').value)||null;
+  S.prod=PRODS.find(p=>p.f===S.fam&&p.a===S.acab&&p.g===S.grosor)||null;
+  const b=document.getElementById('pbadge');
+  if(S.prod){b.style.display='flex';document.getElementById('pbval').textContent=fmt(S.prod.p)+' / m²';}
+  else b.style.display='none';
+  calcSummary();
 }
 
-function calcDims() {
-  state.largo = parseFloat(document.getElementById('inpLargo').value)||0;
-  state.ancho = parseFloat(document.getElementById('inpAncho').value)||0;
-  state.m2 = (state.largo * state.ancho) / 10000;
-  const meta = document.getElementById('dimsMeta');
-  meta.innerHTML = state.m2 > 0 ? `Superficie: <strong>${state.m2.toFixed(4)} m²</strong>` : '';
-  renderSummary();
+// ═══════════ DIMENSIONS ═══════════
+function onDims(){
+  S.largo=parseFloat(document.getElementById('iLargo').value)||0;
+  S.ancho=parseFloat(document.getElementById('iAncho').value)||0;
+  S.m2=(S.largo*S.ancho)/10000;
+  const db=document.getElementById('dimsbox');
+  if(S.m2>0){db.style.display='flex';document.getElementById('dimsval').textContent=fmtN(S.m2,4)+' m²';}
+  else db.style.display='none';
+  // Update SVG labels
+  document.getElementById('dTop').textContent=`ANCHO: ${S.ancho} cm`;
+  document.getElementById('dBot').textContent=`ANCHO: ${S.ancho} cm`;
+  document.getElementById('dLeft').textContent=`LARGO: ${S.largo} cm`;
+  document.getElementById('dRight').textContent=`LARGO: ${S.largo} cm`;
+  calcSummary();
 }
 
-function renderSupplements() {
-  const fam = state.family;
-  const container = document.getElementById('suppsContainer');
-  if (!fam) { container.innerHTML = '<p style="color:var(--text-soft);font-size:.88rem">Selecciona primero un producto.</p>'; return; }
+// ═══════════ BOARD MODE ═══════════
+function setMode(m){
+  S.mode=m;
+  ['C','E','P'].forEach(x=>document.getElementById('m'+x).classList.toggle('on',x===m));
+  document.getElementById('pcolorRow').style.display=m==='P'?'block':'none';
+  document.getElementById('bInt').style.cursor=m==='P'?'crosshair':'default';
+  // Show/hide edge labels
+  const show=m==='C'?'1':'0';
+  ['superior','inferior','izquierdo','derecho'].forEach(e=>{
+    const el=document.getElementById('eLbl_'+e);if(el)el.style.opacity=show;
+  });
+}
 
-  const applicable = SUPPLEMENTS.filter(s=>s.families.includes(fam));
-  const groups = {
-    'Canteado / Fresado': applicable.filter(s=>s.key.startsWith('canto')||s.key.startsWith('fresado')),
-    'Esquinas redondeadas': applicable.filter(s=>s.key==='esquina'),
-    'Barnizado': applicable.filter(s=>s.key.startsWith('barnizado')),
-    'Cortes especiales': applicable.filter(s=>s.key.startsWith('corte')),
-    'Otros': applicable.filter(s=>s.key.startsWith('pasacables')),
-    'Envío y entrega': applicable.filter(s=>s.key.startsWith('entrega')||s.key.startsWith('subida')),
-  };
+// ═══════════ EDGE INTERACTIONS ═══════════
+function toggleEdge(edge,ev){
+  ev&&ev.stopPropagation();
+  if(S.mode!=='C')return;
+  S.edges[edge]=!S.edges[edge];
+  renderBoard();calcSummary();
+}
 
-  let html = '';
-  for (const [gName, items] of Object.entries(groups)) {
-    if (!items.length) continue;
-    html += `<div class="supp-group"><div class="supp-group-title">${gName}</div>`;
-    for (const s of items) {
-      html += `
-        <div class="supp-item">
-          <div><div class="supp-name">${s.label}</div><div class="supp-price">${fmt(s.precio)} / ${s.unit}</div></div>
-          <input type="number" class="supp-qty" id="sq_${s.key}" value="0" min="0" step="${s.unit==='ml'||s.unit==='m²'?'0.1':'1'}" oninput="renderSummary()">
-          <span class="supp-unit">${s.perM2?'m² (auto)':s.unit}</span>
-        </div>`;
+// ═══════════ CORNER INTERACTIONS ═══════════
+function toggleCorner(c,ev){
+  ev&&ev.stopPropagation();
+  if(S.mode!=='E')return;
+  S.corners[c]=!S.corners[c];
+  renderBoard();calcSummary();
+}
+
+// ═══════════ PASACABLES ═══════════
+function setPcColor(el,col,hex){
+  S.pcColor=col;S.pcHex=hex;
+  document.getElementById('pcColorLabel').textContent=col;
+  document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('on',s===el));
+}
+
+function boardClick(ev){
+  if(S.mode!=='P')return;
+  ev.stopPropagation();
+  const svg=document.getElementById('bsvg');
+  const rect=svg.getBoundingClientRect();
+  const sx=(ev.clientX-rect.left)*(500/rect.width);
+  const sy=(ev.clientY-rect.top)*(400/rect.height);
+  // Board interior: x=108,y=83,w=284,h=234
+  const bx=108,by=83,bw=284,bh=234;
+  const xP=Math.max(0,Math.min(1,(sx-bx)/bw));
+  const yP=Math.max(0,Math.min(1,(sy-by)/bh));
+  const xcm=Math.round(S.ancho*xP);
+  const ycm=Math.round(S.largo*yP);
+  const id=Date.now();
+  S.pcs.push({xP,yP,xcm,ycm,col:S.pcColor,hex:S.pcHex,id});
+  renderBoard();calcSummary();
+  toast(`✓ Pasacables ${S.pcColor} en ${xcm}×${ycm} cm desde A`);
+}
+
+function removePc(id){
+  S.pcs=S.pcs.filter(p=>p.id!==id);
+  renderBoard();calcSummary();
+}
+
+// ═══════════ RENDER BOARD ═══════════
+function renderBoard(){
+  const ACC='#b87333', ACC2='#8b5a1e';
+  // Edges
+  const edgeDims={superior:S.ancho,inferior:S.ancho,izquierdo:S.largo,derecho:S.largo};
+  ['superior','inferior','izquierdo','derecho'].forEach(e=>{
+    const line=document.getElementById('eL_'+e);
+    if(S.edges[e]){
+      line.setAttribute('stroke',ACC);line.setAttribute('stroke-width','8');
+      line.style.filter=`drop-shadow(0 0 4px rgba(184,115,51,.55))`;
+    } else {
+      line.setAttribute('stroke','#a07840');line.setAttribute('stroke-width','2.5');
+      line.style.filter='none';
     }
-    html += '</div>';
-  }
-  container.innerHTML = html || '<p style="color:var(--text-soft);font-size:.88rem">No hay suplementos para este producto.</p>';
-  renderSummary();
+  });
+  // Corners
+  ['A','B','C','D'].forEach(c=>{
+    const circ=document.getElementById('cc_'+c);
+    const txt=document.getElementById('ct_'+c);
+    if(S.corners[c]){
+      circ.setAttribute('fill',ACC);circ.setAttribute('stroke',ACC2);
+      txt.setAttribute('fill','#fff');
+    } else {
+      circ.setAttribute('fill','#fff');circ.setAttribute('stroke','#a07840');
+      txt.setAttribute('fill',ACC2);
+    }
+  });
+  // Pasacables
+  const g=document.getElementById('pcGroup');
+  const bx=108,by=83,bw=284,bh=234;
+  g.innerHTML=S.pcs.map(p=>{
+    const cx=bx+p.xP*bw,cy=by+p.yP*bh;
+    const cross=p.col==='Negro'||p.col==='Madera'?'#fff':'#333';
+    return `<g onclick="removePc(${p.id})" style="cursor:pointer" title="Click para eliminar">
+      <circle cx="${cx}" cy="${cy}" r="10" fill="${p.hex}" stroke="${ACC}" stroke-width="2.2" opacity=".96"/>
+      <line x1="${cx-4.5}" y1="${cy}" x2="${cx+4.5}" y2="${cy}" stroke="${cross}" stroke-width="1.8"/>
+      <line x1="${cx}" y1="${cy-4.5}" x2="${cx}" y2="${cy+4.5}" stroke="${cross}" stroke-width="1.8"/>
+    </g>`;
+  }).join('');
+  // Selection summary text
+  updateSelBox();
 }
 
-function renderSummary() {
-  const prod = state.product;
-  const m2 = state.m2;
-  const lineItemsEl = document.getElementById('lineItems');
-  const totalBox = document.getElementById('totalBox');
-  const btnAdd = document.getElementById('btnAdd');
+function updateSelBox(){
+  const lines=[];
+  const ENAME={superior:'Superior',inferior:'Inferior',izquierdo:'Izquierdo',derecho:'Derecho'};
+  const selE=Object.entries(S.edges).filter(([,v])=>v);
+  if(selE.length){
+    const totalMl=selE.reduce((s,[e])=>s+(e==='superior'||e==='inferior'?S.ancho:S.largo),0);
+    const isHpl=S.fam&&S.fam.startsWith('hpl');
+    lines.push(`✂ Canteado ${isHpl?'(incluido)':''}: ${selE.map(([e])=>ENAME[e]).join(', ')} → ${fmtN(totalMl/100,2)} m`);
+  }
+  const selC=Object.entries(S.corners).filter(([,v])=>v);
+  if(selC.length)lines.push(`⬡ Esquinas redondeadas: ${selC.map(([c])=>c).join(', ')}`);
+  S.pcs.forEach((p,i)=>lines.push(`⬤ Pasacables ${i+1} · ${p.col} · ${p.xcm}cm×${p.ycm}cm desde esquina A`));
+  const box=document.getElementById('selBox');
+  if(lines.length){box.style.display='block';box.innerHTML=lines.join('<br>');}
+  else box.style.display='none';
+}
 
-  if (!prod || m2 <= 0) {
-    lineItemsEl.innerHTML = '<p class="empty-msg">Configura el producto y dimensiones.</p>';
-    totalBox.style.display = 'none'; btnAdd.disabled = true; return;
+// ═══════════ SUPPLEMENTS ═══════════
+function renderSupps(){
+  const fam=S.fam;
+  const cont=document.getElementById('supps');
+  if(!fam){cont.innerHTML='<p style="color:var(--txt3);font-size:.83rem">Selecciona primero un producto.</p>';return;}
+  const app=SUPPS.filter(s=>s.fs.includes(fam));
+  if(!app.length){cont.innerHTML='<p style="color:var(--txt3);font-size:.83rem">No hay suplementos adicionales.</p>';return;}
+  const groups={Barnizado:app.filter(s=>s.k.startsWith('barn')),'Envío y entrega':app.filter(s=>s.k.startsWith('ent')||s.k.startsWith('sub'))};
+  let h='';
+  for(const[gn,items]of Object.entries(groups)){
+    if(!items.length)continue;
+    h+=`<div class="sg-title">${gn}</div>`;
+    for(const s of items){
+      h+=`<div class="sr"><div><div class="sr-name">${s.l}</div><div class="sr-price">${fmt(s.p)} / ${s.u}</div></div>
+        <input type="number" class="sr-qty" id="sq_${s.k}" value="0" min="0" step="${s.u==='m²'?'0.01':'1'}" oninput="calcSummary()">
+        <span class="sr-unit">${s.u}</span></div>`;
+    }
+  }
+  cont.innerHTML=h;
+  calcSummary();
+}
+
+// ═══════════ CORTE ESPECIAL ═══════════
+function onCorte(){
+  S.corte=document.getElementById('selCorte').value;
+  document.getElementById('corteExt').style.display=S.corte?'block':'none';
+  calcSummary();
+}
+
+function onFile(ev){
+  const file=ev.target.files[0];if(!file)return;
+  S.filename=file.name;
+  const z=document.getElementById('fzone');z.classList.add('has');
+  document.getElementById('finner').innerHTML=`<div style="font-size:1.2rem;margin-bottom:.2rem">${file.type.includes('pdf')?'📄':'🖼️'}</div><div style="font-weight:600;color:var(--acc2)">${file.name}</div><div style="font-size:.7rem;margin-top:.15rem;color:var(--txt3)">${(file.size/1024).toFixed(0)} KB · Clic para cambiar</div>`;
+  calcSummary();
+}
+
+// ═══════════ SUMMARY ═══════════
+function calcSummary(){
+  const prod=S.prod,m2=S.m2,fam=S.fam;
+  const liEl=document.getElementById('lineItems');
+  const tBox=document.getElementById('totalBox');
+  if(!prod||m2<=0){liEl.innerHTML='<p class="empty">Configura el producto y dimensiones.</p>';tBox.style.display='none';return;}
+
+  let lines=[],total=0;
+  // Board
+  const brd=prod.p*m2;total+=brd;
+  lines.push({d:`${FLAB[fam]} ${prod.al} ${prod.g}cm<br>${S.largo}×${S.ancho} cm · ${fmtN(m2,4)} m²`,v:brd});
+
+  // Canteado
+  const selE=Object.entries(S.edges).filter(([,v])=>v);
+  if(selE.length){
+    const ENAME={superior:'Superior',inferior:'Inferior',izquierdo:'Izquierdo',derecho:'Derecho'};
+    let totalMl=0;const parts=[];
+    selE.forEach(([e])=>{const ml=(e==='superior'||e==='inferior')?S.ancho:S.largo;totalMl+=ml;parts.push(`${ENAME[e]} ${ml}cm`);});
+    const mlM=totalMl/100;
+    const cp=CANTO_P[fam]||0;
+    if(fam.startsWith('hpl')){
+      lines.push({d:`Canteado HPL (incluido): ${parts.join(' · ')} · ${fmtN(mlM,2)} m`,v:0});
+    } else {
+      const ct=cp*mlM;total+=ct;
+      lines.push({d:`Canteado: ${parts.join(' · ')} · ${fmtN(mlM,2)} m`,v:ct});
+    }
   }
 
-  let lines = [], total = 0;
-  const boardTotal = prod.precio * m2;
-  total += boardTotal;
-  lines.push({desc:`${FAMILY_LABELS[state.family]} ${prod.acabadoLabel} ${prod.grosor}cm — ${state.largo}×${state.ancho} cm (${m2.toFixed(4)} m²)`, val:boardTotal});
+  // Esquinas
+  const selC=Object.entries(S.corners).filter(([,v])=>v);
+  if(selC.length){const et=ESQUINA_P*selC.length;total+=et;lines.push({d:`Esquinas redondeadas: ${selC.map(([c])=>c).join(', ')} · ${selC.length} ud`,v:et});}
 
-  SUPPLEMENTS.filter(s=>s.families.includes(state.family)).forEach(s => {
-    const el = document.getElementById(`sq_${s.key}`); if (!el) return;
-    let qty = parseFloat(el.value)||0;
-    if (s.perM2 && qty === 0) return;
-    if (qty <= 0) return;
-    const subtotal = s.precio * qty;
-    total += subtotal;
-    lines.push({desc:`${s.label} (${qty.toFixed(s.unit==='m²'||s.unit==='ml'?2:0)} ${s.unit})`, val:subtotal});
+  // Pasacables
+  if(S.pcs.length){
+    const pt=PC_P*S.pcs.length;total+=pt;
+    const pcLines=S.pcs.map((p,i)=>`Ud${i+1}: ${p.col} · ${p.xcm}cm×${p.ycm}cm desde A`);
+    lines.push({d:`Pasacables (${S.pcs.length} ud):<br>${pcLines.join('<br>')}`,v:pt});
+  }
+
+  // Supplements
+  SUPPS.filter(s=>s.fs.includes(fam)).forEach(s=>{
+    const el=document.getElementById('sq_'+s.k);if(!el)return;
+    const qty=parseFloat(el.value)||0;if(qty<=0)return;
+    const st=s.p*qty;total+=st;
+    lines.push({d:`${s.l} · ${fmtN(qty,s.u==='m²'?2:0)} ${s.u}`,v:st});
   });
 
-  lineItemsEl.innerHTML = lines.map(l=>`
-    <div class="line-item">
-      <div class="li-desc">${l.desc}</div>
-      <div class="li-val">${fmt(l.val)}</div>
-    </div>`).join('');
+  // Corte especial
+  if(S.corte&&fam){
+    const cp=CORTE_P[S.corte]?.[fam];
+    if(cp){
+      total+=cp;
+      const CLAB={chanflan:'Corte interior/chaflán canteado',r2:'Corte redondo 2 lados',r4:'Corte redondo 4 lados'};
+      const nota=document.getElementById('iNota')?.value||'';
+      let desc=CLAB[S.corte];
+      if(nota)desc+=` · ${nota}`;
+      if(S.filename)desc+=` · 📎 ${S.filename}`;
+      lines.push({d:desc,v:cp});
+    }
+  }
 
-  const bi = total / 1.21;
-  document.getElementById('totalBI').textContent = fmt(bi);
-  document.getElementById('totalIVA').textContent = fmt(total - bi);
-  document.getElementById('totalFinal').textContent = fmt(total);
-  totalBox.style.display = 'block'; btnAdd.disabled = false;
-  state._currentTotal = total; state._currentLines = lines;
+  // Render lines
+  liEl.innerHTML=lines.map(l=>`<div class="li"><div class="li-d">${l.d}</div><div class="li-v">${l.v===0?'<span style="color:var(--txt3);font-size:.72rem">Incluido</span>':fmt(l.v)}</div></div>`).join('');
+  const bi=total/1.21;
+  document.getElementById('tBI').textContent=fmt(bi);
+  document.getElementById('tIVA').textContent=fmt(total-bi);
+  document.getElementById('tFinal').textContent=fmt(total);
+  tBox.style.display='block';
+  S._lines=lines;S._total=total;
 }
 
-function addToQuote() {
-  if (!state._currentLines.length) return;
-  state.quoteLines.push({lines:[...state._currentLines], total:state._currentTotal});
+// ═══════════ QUOTE ═══════════
+function addLine(){
+  if(!S._lines.length)return;
+  S.quote.push({lines:[...S._lines],total:S._total});
   renderQuote();
+  toast('✓ Partida añadida al presupuesto');
 }
-
-function renderQuote() {
-  const section = document.getElementById('quoteSection');
-  const container = document.getElementById('quoteLines');
-  if (!state.quoteLines.length) { section.style.display='none'; return; }
-  section.style.display = 'block';
-  let grandTotal = 0;
-  container.innerHTML = state.quoteLines.map((q,i) => {
-    grandTotal += q.total;
-    return `<div style="border:1px solid var(--border);border-radius:8px;padding:.75rem;margin-bottom:.75rem;position:relative">
-      <button onclick="removeLine(${i})" style="position:absolute;top:.5rem;right:.5rem;background:none;border:none;cursor:pointer;color:var(--text-soft);font-size:1rem" title="Eliminar">✕</button>
-      ${q.lines.map(l=>`<div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-soft);padding:.2rem 1.5rem .2rem 0"><span>${l.desc}</span><span style="font-weight:600;color:var(--text);white-space:nowrap;margin-left:.5rem">${fmt(l.val)}</span></div>`).join('')}
-      <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-weight:700;font-size:.9rem"><span>Subtotal</span><span>${fmt(q.total)}</span></div>
-    </div>`;
-  }).join('');
-  document.getElementById('grandTotal').textContent = fmt(grandTotal);
+function renderQuote(){
+  const sec=document.getElementById('qSection'),cont=document.getElementById('qLines');
+  if(!S.quote.length){sec.style.display='none';return;}
+  sec.style.display='block';
+  let gt=0;
+  cont.innerHTML=S.quote.map((q,i)=>{gt+=q.total;return`<div class="ql">
+    <button class="btn-rm" onclick="removeLine(${i})">✕</button>
+    <div class="ql-hdr"><span class="ql-title">Partida ${i+1}</span><span class="ql-tot">${fmt(q.total)}</span></div>
+    <div class="ql-detail">${q.lines.map(l=>`${l.d.replace(/<br>/g,' · ')}: ${l.v===0?'Incluido':fmt(l.v)}`).join('<br>')}</div>
+  </div>`;}).join('');
+  document.getElementById('grandTotal').textContent=fmt(gt);
 }
+function removeLine(i){S.quote.splice(i,1);renderQuote();}
+function clearAll(){S.quote=[];renderQuote();}
 
-function removeLine(i) { state.quoteLines.splice(i,1); renderQuote(); }
-function clearQuote() { state.quoteLines=[]; renderQuote(); }
+function doCopy(){
+  if(!S.quote.length){toast('No hay partidas en el presupuesto');return;}
+  let gt=0,txt='PRESUPUESTO — MADERA FINA\n'+'─'.repeat(42)+'\n\n';
+  S.quote.forEach((q,i)=>{
+    gt+=q.total;
+    txt+=`PARTIDA ${i+1}\n`;
+    q.lines.forEach(l=>{txt+=`  ${l.d.replace(/<br>/g,'\n  ')}: ${l.v===0?'Incluido':fmt(l.v)}\n`;});
+    txt+=`  Subtotal: ${fmt(q.total)}\n\n`;
+  });
+  txt+='─'.repeat(42)+`\nTOTAL: ${fmt(gt)} (IVA 21% incluido)\n`;
+  navigator.clipboard.writeText(txt).then(()=>toast('✓ Copiado al portapapeles'));
+}
+function doPrint(){window.print();}
+
+// ═══════════ INIT ═══════════
+onDims();
 </script>
 </body>
 </html>
