@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuestador · Madera Fina</title>
+<meta name="description" content="Calcula el precio de tu proyecto de madera a medida al instante.">
+<style>
+  :root{
+    --wood-900:#2b2118;
+    --wood-800:#3f2f22;
+    --wood-700:#5c4029;
+    --wood-600:#7a5334;
+    --wood-500:#8b5e3c;
+    --accent:#c1743a;
+    --accent-dark:#a75f2b;
+    --cream-100:#faf6f0;
+    --cream-200:#f3ebe0;
+    --cream-300:#e7ddd1;
+    --line:#e2d5c4;
+    --white:#ffffff;
+    --ok:#3f7a4e;
+    --radius:14px;
+    --shadow:0 4px 18px rgba(43,33,24,0.08);
+    --shadow-lg:0 12px 32px rgba(43,33,24,0.14);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream-100);
+    color:var(--wood-900);
+    line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+  }
+  button{font-family:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px;}
+
+  /* Header */
+  header.top{
+    background:var(--white);
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:50;
+  }
+  .top-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1180px;margin:0 auto;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:19px;color:var(--wood-900);}
+  .brand .mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--wood-500),var(--wood-800));flex:none;}
+  .brand small{display:block;font-weight:500;font-size:11.5px;color:var(--wood-600);letter-spacing:.02em;}
+  .step-pill{font-size:13px;color:var(--wood-600);background:var(--cream-200);padding:6px 12px;border-radius:999px;}
+
+  /* Screen: product picker */
+  #screen-pick{padding:44px 0 60px;}
+  .pick-head{text-align:center;max-width:620px;margin:0 auto 34px;}
+  .pick-head h1{font-size:30px;margin:0 0 10px;color:var(--wood-900);}
+  .pick-head p{color:var(--wood-700);font-size:15.5px;margin:0;}
+  .pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .pick-card{
+    background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 22px;cursor:pointer;text-align:left;transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .pick-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);border-color:var(--accent);}
+  .pick-card .ico{width:46px;height:46px;border-radius:10px;background:var(--cream-200);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+  .pick-card h3{margin:0 0 6px;font-size:18px;}
+  .pick-card p{margin:0 0 14px;color:var(--wood-700);font-size:14px;}
+  .pick-card .from{font-size:13px;color:var(--accent-dark);font-weight:600;}
+
+  /* Screen: configurator */
+  #screen-config{display:none;padding:26px 0 120px;}
+  .back-link{display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:var(--wood-700);font-size:14px;cursor:pointer;padding:6px 0;margin-bottom:14px;}
+  .back-link:hover{color:var(--accent-dark);}
+  .config-title{font-size:24px;margin:0 0 4px;}
+  .config-sub{color:var(--wood-700);font-size:14px;margin:0 0 22px;}
+
+  .config-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start;}
+
+  /* Preview */
+  .preview-card{
+    background:var(--white);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px;position:sticky;top:78px;
+  }
+  .preview-svg-holder{display:flex;align-items:center;justify-content:center;background:var(--cream-100);border-radius:10px;padding:10px;}
+  .preview-meta{display:flex;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--wood-700);flex-wrap:wrap;gap:8px;}
+  .preview-meta b{color:var(--wood-900);}
+
+  /* Options */
+  .opt-section{background:var(--white);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:16px;}
+  .opt-section h2{font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:var(--wood-600);margin:0 0 16px;}
+  .row{display:flex;gap:16px;flex-wrap:wrap;}
+  .field{flex:1;min-width:150px;margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;color:var(--wood-900);margin-bottom:8px;}
+  .field label .val{color:var(--accent-dark);font-weight:700;}
+  input[type=range]{width:100%;accent-color:var(--accent);height:6px;}
+  select, input[type=number]{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--white);
+    font-size:14px;color:var(--wood-900);
+  }
+  .swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px;}
+  .swatch{
+    border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;background:var(--white);
+    font-size:13px;text-align:left;transition:border-color .12s, background .12s;
+  }
+  .swatch .name{font-weight:600;color:var(--wood-900);display:block;}
+  .swatch .price{color:var(--wood-600);font-size:12px;}
+  .swatch.active{border-color:var(--accent);background:#fdf3ea;}
+  .swatch:hover{border-color:var(--accent);}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .chip{
+    border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13.5px;cursor:pointer;background:var(--white);
+    transition:border-color .12s, background .12s;
+  }
+  .chip.active{border-color:var(--accent);background:#fdf3ea;color:var(--accent-dark);font-weight:600;}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--cream-300);}
+  .toggle-row:first-of-type{border-top:none;padding-top:0;}
+  .toggle-row .t-label{font-size:14px;font-weight:600;}
+  .toggle-row .t-desc{font-size:12.5px;color:var(--wood-600);margin-top:2px;}
+  .toggle-row .t-price{font-size:13px;color:var(--wood-600);white-space:nowrap;margin-left:10px;}
+  .switch{position:relative;width:42px;height:24px;flex:none;}
+  .switch input{opacity:0;width:100%;height:100%;margin:0;position:absolute;cursor:pointer;z-index:1;}
+  .switch .track{position:absolute;inset:0;background:var(--cream-300);border-radius:999px;transition:background .15s;}
+  .switch .knob{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--white);box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s;}
+  .switch input:checked ~ .track{background:var(--accent);}
+  .switch input:checked ~ .knob{transform:translateX(18px);}
+
+  /* Price panel */
+  .price-card{
+    background:var(--wood-900);color:var(--cream-100);border-radius:var(--radius);
+    padding:20px 22px;position:sticky;top:78px;
+  }
+  .price-card h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:#d8c6b2;margin:0 0 14px;}
+  .price-lines{font-size:13.5px;margin-bottom:10px;}
+  .price-line{display:flex;justify-content:space-between;padding:5px 0;color:#e9dcc8;}
+  .price-line .amt{color:var(--white);}
+  .price-total{
+    display:flex;justify-content:space-between;align-items:baseline;
+    border-top:1px solid rgba(255,255,255,.15);padding-top:14px;margin-top:6px;
+  }
+  .price-total .num{font-size:30px;font-weight:700;}
+  .price-total .lbl{font-size:13px;color:#d8c6b2;}
+  .price-note{font-size:11.5px;color:#c7b49b;margin-top:6px;}
+  .cta-btn{
+    width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-top:16px;transition:background .12s;
+  }
+  .cta-btn:hover{background:var(--accent-dark);}
+  .ghost-btn{
+    width:100%;background:transparent;color:#e9dcc8;border:1px solid rgba(255,255,255,.25);border-radius:10px;
+    padding:10px;font-size:13px;cursor:pointer;margin-top:8px;
+  }
+  .ghost-btn:hover{border-color:#fff;color:#fff;}
+
+  /* Sticky mobile bar */
+  .mobile-bar{
+    display:none;position:fixed;left:0;right:0;bottom:0;z-index:60;
+    background:var(--wood-900);color:#fff;padding:12px 16px;align-items:center;justify-content:space-between;
+    box-shadow:0 -6px 20px rgba(0,0,0,.2);
+  }
+  .mobile-bar .amt{font-size:20px;font-weight:700;}
+  .mobile-bar .lbl{font-size:11px;color:#d8c6b2;}
+  .mobile-bar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 18px;font-weight:700;font-size:14px;}
+
+  /* Modal */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(43,33,24,.5);z-index:100;align-items:center;justify-content:center;padding:16px;}
+  .modal-bg.open{display:flex;}
+  .modal{background:#fff;border-radius:16px;max-width:460px;width:100%;padding:26px;max-height:90vh;overflow:auto;}
+  .modal h3{margin:0 0 4px;font-size:20px;}
+  .modal p.sub{margin:0 0 18px;color:var(--wood-700);font-size:13.5px;}
+  .modal label{display:block;font-size:13px;font-weight:600;margin:12px 0 6px;}
+  .modal input,.modal textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;}
+  .modal textarea{resize:vertical;min-height:70px;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .modal-actions button{flex:1;padding:12px;border-radius:10px;border:none;font-weight:700;font-size:14px;cursor:pointer;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-secondary{background:var(--cream-200);color:var(--wood-900);}
+  .close-x{position:absolute;top:16px;right:18px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--wood-600);}
+  .modal{position:relative;}
+  .summary-box{background:var(--cream-100);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--wood-800);margin-top:14px;white-space:pre-wrap;}
+  .success-box{display:none;text-align:center;padding:10px 0;}
+  .success-box .check{width:52px;height:52px;border-radius:50%;background:#e5f3e8;color:var(--ok);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:26px;}
+
+  @media (max-width: 860px){
+    .pick-grid{grid-template-columns:1fr;}
+    .config-grid{grid-template-columns:1fr;}
+    .preview-card{position:static;}
+    .price-card{display:none;}
+    .mobile-bar{display:flex;}
+    #screen-config{padding-bottom:100px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <span class="mark"></span>
+      <span>Madera Fina<br><small>Presupuestador al instante</small></span>
+    </div>
+    <span class="step-pill" id="stepPill">1/2 · Elige tu producto</span>
+  </div>
+</header>
+
+<!-- SCREEN 1: PRODUCT PICKER -->
+<section id="screen-pick" class="wrap">
+  <div class="pick-head">
+    <h1>Consigue tu presupuesto en menos de un minuto</h1>
+    <p>Elige qué necesitas, ajusta las medidas y el precio se calcula al momento. Sin esperas, sin registros.</p>
+  </div>
+  <div class="pick-grid">
+    <button class="pick-card" data-product="tablero">
+      <div class="ico">🪵</div>
+      <h3>Tableros a medida</h3>
+      <p>Corte de tableros en el material, grosor y acabado que necesites, con cantos y taladros opcionales.</p>
+      <div class="from">Desde 18 €/m²</div>
+    </button>
+    <button class="pick-card" data-product="escritorio">
+      <div class="ico">🖥️</div>
+      <h3>Escritorios a medida</h3>
+      <p>Tablero + patas al ancho y fondo exactos que necesitas, con acabado, cajonera y pasacables opcionales.</p>
+      <div class="from">Desde 95 €</div>
+    </button>
+    <button class="pick-card" data-product="estanteria">
+      <div class="ico">📚</div>
+      <h3>Estanterías a medida</h3>
+      <p>Diseña tu estantería: dimensiones, número de baldas, puertas y cajones, en el material que prefieras.</p>
+      <div class="from">Desde 120 €</div>
+    </button>
+  </div>
+</section>
+
+<!-- SCREEN 2: CONFIGURATOR -->
+<section id="screen-config" class="wrap">
+  <button class="back-link" id="backBtn">‹ Cambiar producto</button>
+  <h1 class="config-title" id="configTitle">Tableros a medida</h1>
+  <p class="config-sub" id="configSub">Ajusta las opciones y verás el precio actualizarse al instante.</p>
+
+  <div class="config-grid">
+    <!-- LEFT: preview + options -->
+    <div>
+      <div class="preview-card">
+        <div class="preview-svg-holder">
+          <svg id="previewSvg" width="360" height="260" viewBox="0 0 360 260"></svg>
+        </div>
+        <div class="preview-meta" id="previewMeta"></div>
+      </div>
+
+      <div id="optionsHost" style="margin-top:16px;"></div>
+    </div>
+
+    <!-- RIGHT: price -->
+    <aside class="price-card">
+      <h2>Tu presupuesto</h2>
+      <div class="price-lines" id="priceLines"></div>
+      <div class="price-total">
+        <div>
+          <div class="lbl">Total (IVA incluido)</div>
+          <div class="num" id="priceTotal">0 €</div>
+        </div>
+      </div>
+      <div class="price-note">Precio orientativo. El definitivo se confirma tras revisar el pedido.</div>
+      <button class="cta-btn" id="ctaBtn">Solicitar este presupuesto</button>
+      <button class="ghost-btn" id="shareBtn">Copiar enlace de esta configuración</button>
+    </aside>
+  </div>
+</section>
+
+<!-- Mobile sticky bar -->
+<div class="mobile-bar" id="mobileBar">
+  <div>
+    <div class="lbl">Total con IVA</div>
+    <div class="amt" id="mobileTotal">0 €</div>
+  </div>
+  <button id="mobileCta">Solicitar</button>
+</div>
+
+<!-- Modal: contact -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="close-x" id="modalClose">✕</button>
+
+    <div id="formView">
+      <h3>Casi listo</h3>
+      <p class="sub">Déjanos tus datos y te confirmamos el presupuesto exacto sin compromiso.</p>
+      <label for="fName">Nombre</label>
+      <input id="fName" type="text" placeholder="Tu nombre" autocomplete="name">
+      <label for="fEmail">Email</label>
+      <input id="fEmail" type="email" placeholder="tu@email.com" autocomplete="email">
+      <label for="fPhone">Teléfono (opcional)</label>
+      <input id="fPhone" type="tel" placeholder="600 000 000" autocomplete="tel">
+      <label for="fNotes">Comentarios (opcional)</label>
+      <textarea id="fNotes" placeholder="Color, plazo de entrega, dirección de instalación..."></textarea>
+
+      <div class="summary-box" id="summaryBox"></div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" id="downloadBtn">Descargar</button>
+        <button class="btn-primary" id="sendBtn">Enviar solicitud</button>
+      </div>
+    </div>
+
+    <div class="success-box" id="successView">
+      <div class="check">✓</div>
+      <h3>¡Solicitud preparada!</h3>
+      <p class="sub" id="successMsg">Se ha abierto tu correo con el presupuesto listo para enviar. Si no se abrió automáticamente, usa el botón de descarga y envíanoslo por WhatsApp o email.</p>
+      <button class="btn-primary" style="width:100%" id="closeSuccess">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   CONFIGURACIÓN DE PRECIOS — EDITA AQUÍ TUS TARIFAS REALES
+   Todo el negocio (materiales, acabados, extras) vive en este objeto.
+   ========================================================================= */
+const CONFIG = {
+  contactEmail: 'presupuestos@maderafina.es',
+  whatsapp: '34600000000', // sin '+', para enlace wa.me
+  iva: 0.21,
+
+  materials: [
+    { id:'aglomerado',    name:'Aglomerado',       pricePerM2: 18 },
+    { id:'dm',            name:'DM / MDF',         pricePerM2: 24 },
+    { id:'contrachapado', name:'Contrachapado',    pricePerM2: 32 },
+    { id:'melamina',      name:'Melamina',         pricePerM2: 22 },
+    { id:'maciza',        name:'Madera maciza',    pricePerM2: 65 },
+  ],
+  finishes: [
+    { id:'natural',   name:'Sin acabar',  extraPerM2: 0  },
+    { id:'barnizado', name:'Barnizado',   extraPerM2: 9  },
+    { id:'lacado',    name:'Lacado color',extraPerM2: 15 },
+    { id:'chapado',   name:'Chapa noble', extraPerM2: 20 },
+  ],
+
+  tablero: {
+    thicknesses: [10,16,19,25,30],
+    cantoPorMl: 2.5,
+    taladroPorUd: 0.8,
+    minimo: 15,
+  },
+  escritorio: {
+    structureFactor: 1.3, // el tablero de escritorio necesita más refuerzo
+    patas: [
+      { id:'caballete', name:'Caballete de madera', price: 45 },
+      { id:'metal',     name:'Patas de metal',      price: 65 },
+      { id:'hierro',    name:'Hierro negro industrial', price: 78 },
+    ],
+    cajoneraPrice: 120,
+    pasacablesPrice: 12,
+    elevablePrice: 280,
+    montajePrice: 60,
+  },
+  estanteria: {
+    traseraFactor: 0.3,
+    puertaFactor: 1.15,
+    puertaBisagras: 6,
+    cajonPrice: 55,
+    patasPrice: 25,
+    montajePrice: 50,
+  },
+};
+
+/* =========================================================================
+   ESTADO
+   ========================================================================= */
+const state = {
+  product: null,
+  tablero: { ancho:60, alto:40, grosor:19, material:'aglomerado', finish:'natural', canteado:false, taladros:0 },
+  escritorio: { ancho:140, fondo:60, material:'dm', finish:'barnizado', patas:'metal', cajonera:false, pasacables:false, elevable:false, montaje:true },
+  estanteria: { ancho:90, alto:180, fondo:30, baldas:4, material:'contrachapado', finish:'barnizado', trasera:true, puertas:0, cajones:0, patas:false, montaje:true },
+};
+
+const fmt = (n) => n.toLocaleString('es-ES',{minimumFractionDigits:0,maximumFractionDigits:2}) + ' €';
+const m2 = (cmA, cmB) => (cmA/100) * (cmB/100);
+const matById = (id) => CONFIG.materials.find(m=>m.id===id);
+const finById = (id) => CONFIG.finishes.find(f=>f.id===id);
+
+/* =========================================================================
+   CÁLCULO DE PRECIOS
+   ========================================================================= */
+function calcTablero(s){
+  const area = m2(s.ancho, s.alto);
+  const mat = matById(s.material), fin = finById(s.finish);
+  const thicknessMult = s.grosor / 19;
+  const base = area * mat.pricePerM2 * thicknessMult;
+  const finish = area * fin.extraPerM2;
+  const perimeterMl = 2 * (s.ancho + s.alto) / 100;
+  const canto = s.canteado ? perimeterMl * CONFIG.tablero.cantoPorMl : 0;
+  const taladros = s.taladros * CONFIG.tablero.taladroPorUd;
+  const lines = [
+    { label:`${mat.name} (${area.toFixed(2)} m²)`, amount: base },
+  ];
+  if (finish>0) lines.push({ label:fin.name, amount: finish });
+  if (canto>0) lines.push({ label:`Canteado (${perimeterMl.toFixed(1)} ml)`, amount: canto });
+  if (taladros>0) lines.push({ label:`Taladros x${s.taladros}`, amount: taladros });
+  let subtotal = base + finish + canto + taladros;
+  if (subtotal < CONFIG.tablero.minimo) subtotal = CONFIG.tablero.minimo;
+  return finalize(lines, subtotal);
+}
+
+function calcEscritorio(s){
+  const cfg = CONFIG.escritorio;
+  const area = m2(s.ancho, s.fondo);
+  const mat = matById(s.material), fin = finById(s.finish);
+  const base = area * mat.pricePerM2 * cfg.structureFactor;
+  const finish = area * fin.extraPerM2;
+  const pata = cfg.patas.find(p=>p.id===s.patas);
+  const lines = [
+    { label:`Tablero ${mat.name} (${area.toFixed(2)} m²)`, amount: base },
+  ];
+  if (finish>0) lines.push({ label:fin.name, amount: finish });
+  lines.push({ label:pata.name, amount: pata.price });
+  let subtotal = base + finish + pata.price;
+  if (s.cajonera){ lines.push({label:'Cajonera', amount:cfg.cajoneraPrice}); subtotal += cfg.cajoneraPrice; }
+  if (s.pasacables){ lines.push({label:'Pasacables', amount:cfg.pasacablesPrice}); subtotal += cfg.pasacablesPrice; }
+  if (s.elevable){ lines.push({label:'Estructura elevable eléctrica', amount:cfg.elevablePrice}); subtotal += cfg.elevablePrice; }
+  if (s.montaje){ lines.push({label:'Montaje a domicilio', amount:cfg.montajePrice}); subtotal += cfg.montajePrice; }
+  return finalize(lines, subtotal);
+}
+
+function calcEstanteria(s){
+  const cfg = CONFIG.estanteria;
+  const mat = matById(s.material), fin = finById(s.finish);
+  const sidesArea = 2 * m2(s.alto, s.fondo);
+  const baldasArea = s.baldas * m2(s.ancho, s.fondo);
+  const traseraArea = s.trasera ? m2(s.ancho, s.alto) * cfg.traseraFactor : 0;
+  const totalArea = sidesArea + baldasArea + traseraArea;
+  const base = totalArea * mat.pricePerM2;
+  const finish = totalArea * fin.extraPerM2;
+  const lines = [
+    { label:`Estructura + ${s.baldas} baldas · ${mat.name} (${totalArea.toFixed(2)} m²)`, amount: base },
+  ];
+  if (finish>0) lines.push({ label:fin.name, amount: finish });
+  let subtotal = base + finish;
+  if (s.puertas>0){
+    const doorArea = (s.ancho/100/s.puertas) * (s.alto/100);
+    const doorPrice = s.puertas * (doorArea * mat.pricePerM2 * cfg.puertaFactor + cfg.puertaBisagras);
+    lines.push({ label:`${s.puertas} puertas`, amount: doorPrice });
+    subtotal += doorPrice;
+  }
+  if (s.cajones>0){
+    const cajonesPrice = s.cajones * cfg.cajonPrice;
+    lines.push({ label:`${s.cajones} cajones`, amount: cajonesPrice });
+    subtotal += cajonesPrice;
+  }
+  if (s.patas){ lines.push({label:'Patas', amount:cfg.patasPrice}); subtotal += cfg.patasPrice; }
+  if (s.montaje){ lines.push({label:'Montaje a domicilio', amount:cfg.montajePrice}); subtotal += cfg.montajePrice; }
+  return finalize(lines, subtotal);
+}
+
+function finalize(lines, subtotal){
+  const iva = subtotal * CONFIG.iva;
+  const total = subtotal + iva;
+  return { lines, subtotal, iva, total };
+}
+
+function calcCurrent(){
+  const s = state[state.product];
+  if (state.product==='tablero') return calcTablero(s);
+  if (state.product==='escritorio') return calcEscritorio(s);
+  if (state.product==='estanteria') return calcEstanteria(s);
+}
+
+/* =========================================================================
+   PREVIEW SVG
+   ========================================================================= */
+function drawPreview(){
+  const svg = document.getElementById('previewSvg');
+  const s = state[state.product];
+  const W = 360, H = 260, pad = 30;
+  let boxW, boxH, label;
+
+  if (state.product==='tablero'){ boxW=s.ancho; boxH=s.alto; label={w:s.ancho,h:s.alto}; }
+  else if (state.product==='escritorio'){ boxW=s.ancho; boxH=s.fondo; label={w:s.ancho,h:s.fondo}; }
+  else { boxW=s.ancho; boxH=s.alto; label={w:s.ancho,h:s.alto}; }
+
+  const scale = Math.min((W-2*pad)/boxW, (H-2*pad)/boxH);
+  const rw = boxW*scale, rh = boxH*scale;
+  const x = (W-rw)/2, y = (H-rh)/2;
+
+  let inner = '';
+  const stroke = '#5c4029', fill = '#f3ebe0', accent = '#c1743a';
+
+  if (state.product==='tablero'){
+    inner += `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" rx="4" fill="${fill}" stroke="${s.canteado?accent:stroke}" stroke-width="${s.canteado?4:2}"/>`;
+    const n = Math.min(s.taladros, 24);
+    for(let i=0;i<n;i++){
+      const cols = Math.ceil(Math.sqrt(n));
+      const cx = x + rw*( (i%cols+0.5) / cols );
+      const cy = y + rh*( (Math.floor(i/cols)+0.5) / Math.ceil(n/cols) );
+      inner += `<circle cx="${cx}" cy="${cy}" r="2.4" fill="${stroke}" opacity="0.55"/>`;
+    }
+  } else if (state.product==='escritorio'){
+    inner += `<rect x="${x}" y="${y}" width="${rw}" height="${Math.max(rh*0.18,8)}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
+    const legY = y + Math.max(rh*0.18,8);
+    const legH = H - pad - legY;
+    const legColor = s.patas==='metal' ? '#9aa0a6' : (s.patas==='hierro' ? '#2b2118' : '#8b5e3c');
+    inner += `<rect x="${x+6}" y="${legY}" width="6" height="${legH}" fill="${legColor}"/>`;
+    inner += `<rect x="${x+rw-12}" y="${legY}" width="6" height="${legH}" fill="${legColor}"/>`;
+    if (s.cajonera){ inner += `<rect x="${x+rw*0.32}" y="${legY}" width="${rw*0.22}" height="${legH*0.6}" fill="#e7ddd1" stroke="${stroke}"/>`; }
+  } else {
+    inner += `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" rx="3" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+    for(let i=1;i<=s.baldas;i++){
+      const ly = y + rh*(i/(s.baldas+1));
+      inner += `<line x1="${x+2}" y1="${ly}" x2="${x+rw-2}" y2="${ly}" stroke="${stroke}" stroke-width="1.6"/>`;
+    }
+    if (s.puertas>0){
+      for(let i=1;i<s.puertas;i++){
+        const lx = x + rw*(i/s.puertas);
+        inner += `<line x1="${lx}" y1="${y}" x2="${lx}" y2="${y+rh}" stroke="${accent}" stroke-width="2" stroke-dasharray="4 3"/>`;
+      }
+      inner += `<rect x="${x}" y="${y}" width="${rw}" height="${rh}" rx="3" fill="none" stroke="${accent}" stroke-width="2"/>`;
+    }
+    if (s.cajones>0){
+      const cw = rw/Math.max(s.cajones,1);
+      for(let i=0;i<s.cajones;i++){
+        inner += `<rect x="${x+cw*i+3}" y="${y+rh-rh/(s.baldas+1)+3}" width="${cw-6}" height="${rh/(s.baldas+1)-6}" fill="#e7ddd1" stroke="${stroke}"/>`;
+      }
+    }
+  }
+
+  // dimension labels
+  inner += `<text x="${W/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="#7a5334" font-family="sans-serif">${label.w} cm</text>`;
+  inner += `<text x="12" y="${H/2}" text-anchor="middle" font-size="11" fill="#7a5334" font-family="sans-serif" transform="rotate(-90 12 ${H/2})">${label.h} cm</text>`;
+
+  svg.innerHTML = inner;
+}
+
+/* =========================================================================
+   RENDER: opciones por producto
+   ========================================================================= */
+function materialSwatches(currentId, onPick){
+  return `<div class="swatches">${CONFIG.materials.map(m=>`
+    <button type="button" class="swatch ${m.id===currentId?'active':''}" data-pick="${m.id}">
+      <span class="name">${m.name}</span>
+      <span class="price">${m.pricePerM2} €/m²</span>
+    </button>`).join('')}</div>`;
+}
+function finishChips(currentId){
+  return `<div class="chip-row">${CONFIG.finishes.map(f=>`
+    <button type="button" class="chip ${f.id===currentId?'active':''}" data-pick="${f.id}">${f.name}${f.extraPerM2? ' · +'+f.extraPerM2+'€/m²':''}</button>`).join('')}</div>`;
+}
+
+function renderOptions(){
+  const host = document.getElementById('optionsHost');
+  const s = state[state.product];
+  let html = '';
+
+  if (state.product==='tablero'){
+    html += `
+    <div class="opt-section">
+      <h2>Medidas</h2>
+      <div class="field"><label>Ancho <span class="val" id="v_ancho">${s.ancho} cm</span></label>
+        <input type="range" id="in_ancho" min="10" max="300" value="${s.ancho}"></div>
+      <div class="field"><label>Alto <span class="val" id="v_alto">${s.alto} cm</span></label>
+        <input type="range" id="in_alto" min="10" max="300" value="${s.alto}"></div>
+      <div class="field"><label>Grosor</label>
+        <select id="in_grosor">${CONFIG.tablero.thicknesses.map(t=>`<option value="${t}" ${t==s.grosor?'selected':''}>${t} mm</option>`).join('')}</select></div>
+    </div>
+    <div class="opt-section"><h2>Material</h2>${materialSwatches(s.material)}</div>
+    <div class="opt-section"><h2>Acabado</h2>${finishChips(s.finish)}</div>
+    <div class="opt-section">
+      <h2>Extras</h2>
+      <div class="toggle-row">
+        <div><div class="t-label">Canteado de bordes</div><div class="t-desc">Cubrecantos a juego en todo el perímetro</div></div>
+        <div class="t-price">${CONFIG.tablero.cantoPorMl} €/ml</div>
+        <label class="switch"><input type="checkbox" data-toggle="canteado" ${s.canteado?'checked':''}><span class="track"></span><span class="knob"></span></label>
+      </div>
+      <div class="field" style="margin-top:12px;"><label>Taladros para bisagras <span class="val">${s.taladros} ud</span></label>
+        <input type="range" id="in_taladros" min="0" max="24" value="${s.taladros}"></div>
+    </div>`;
+  }
+
+  if (state.product==='escritorio'){
+    html += `
+    <div class="opt-section">
+      <h2>Medidas</h2>
+      <div class="field"><label>Ancho <span class="val" id="v_ancho">${s.ancho} cm</span></label>
+        <input type="range" id="in_ancho" min="80" max="240" value="${s.ancho}"></div>
+      <div class="field"><label>Fondo <span class="val" id="v_fondo">${s.fondo} cm</span></label>
+        <input type="range" id="in_fondo" min="40" max="90" value="${s.fondo}"></div>
+    </div>
+    <div class="opt-section"><h2>Material</h2>${materialSwatches(s.material)}</div>
+    <div class="opt-section"><h2>Acabado</h2>${finishChips(s.finish)}</div>
+    <div class="opt-section"><h2>Patas</h2>
+      <div class="chip-row">${CONFIG.escritorio.patas.map(p=>`<button type="button" class="chip ${p.id===s.patas?'active':''}" data-pick="${p.id}">${p.name} · ${p.price}€</button>`).join('')}</div>
+    </div>
+    <div class="opt-section">
+      <h2>Extras</h2>
+      ${toggleRow('cajonera','Cajonera lateral','1 cajón + 2 cajones pequeños', CONFIG.escritorio.cajoneraPrice, s.cajonera)}
+      ${toggleRow('pasacables','Pasacables', 'Orificio con tapa para cables', CONFIG.escritorio.pasacablesPrice, s.pasacables)}
+      ${toggleRow('elevable','Estructura elevable eléctrica','Escritorio de pie/sentado', CONFIG.escritorio.elevablePrice, s.elevable)}
+      ${toggleRow('montaje','Montaje a domicilio','Te lo instalamos nosotros', CONFIG.escritorio.montajePrice, s.montaje)}
+    </div>`;
+  }
+
+  if (state.product==='estanteria'){
+    html += `
+    <div class="opt-section">
+      <h2>Medidas</h2>
+      <div class="field"><label>Ancho <span class="val" id="v_ancho">${s.ancho} cm</span></label>
+        <input type="range" id="in_ancho" min="40" max="240" value="${s.ancho}"></div>
+      <div class="field"><label>Alto <span class="val" id="v_alto">${s.alto} cm</span></label>
+        <input type="range" id="in_alto" min="60" max="260" value="${s.alto}"></div>
+      <div class="field"><label>Fondo <span class="val" id="v_fondo">${s.fondo} cm</span></label>
+        <input type="range" id="in_fondo" min="20" max="50" value="${s.fondo}"></div>
+      <div class="field"><label>Nº de baldas <span class="val" id="v_baldas">${s.baldas}</span></label>
+        <input type="range" id="in_baldas" min="1" max="10" value="${s.baldas}"></div>
+    </div>
+    <div class="opt-section"><h2>Material</h2>${materialSwatches(s.material)}</div>
+    <div class="opt-section"><h2>Acabado</h2>${finishChips(s.finish)}</div>
+    <div class="opt-section">
+      <h2>Extras</h2>
+      <div class="field"><label>Puertas <span class="val" id="v_puertas">${s.puertas===0?'Sin puertas':s.puertas}</span></label>
+        <div class="chip-row" id="chips_puertas">${[0,2,4].map(n=>`<button type="button" class="chip ${n===s.puertas?'active':''}" data-pickn="${n}">${n===0?'Sin puertas':n+' puertas'}</button>`).join('')}</div></div>
+      <div class="field" style="margin-top:12px;"><label>Cajones <span class="val" id="v_cajones">${s.cajones}</span></label>
+        <input type="range" id="in_cajones" min="0" max="4" value="${s.cajones}"></div>
+      ${toggleRow('trasera','Panel trasero','Cierra la parte de atrás', null, s.trasera)}
+      ${toggleRow('patas','Patas elevadas','Separa la estantería del suelo', CONFIG.estanteria.patasPrice, s.patas)}
+      ${toggleRow('montaje','Montaje a domicilio','Te la instalamos nosotros', CONFIG.estanteria.montajePrice, s.montaje)}
+    </div>`;
+  }
+
+  host.innerHTML = html;
+  bindOptionEvents();
+}
+
+function toggleRow(key, label, desc, price, checked){
+  return `<div class="toggle-row">
+    <div><div class="t-label">${label}</div><div class="t-desc">${desc}</div></div>
+    ${price!=null?`<div class="t-price">+${price} €</div>`:''}
+    <label class="switch"><input type="checkbox" data-toggle="${key}" ${checked?'checked':''}><span class="track"></span><span class="knob"></span></label>
+  </div>`;
+}
+
+function bindOptionEvents(){
+  const s = state[state.product];
+  const host = document.getElementById('optionsHost');
+
+  host.querySelectorAll('input[type=range]').forEach(el=>{
+    el.addEventListener('input', ()=>{
+      const key = el.id.replace('in_','');
+      s[key] = Number(el.value);
+      const v = document.getElementById('v_'+key);
+      if (v) v.textContent = (key==='baldas'||key==='cajones'||key==='taladros') ? el.value : el.value+' cm';
+      if (key==='puertas'){} // n/a, handled elsewhere
+      update();
+    });
+  });
+  const grosor = document.getElementById('in_grosor');
+  if (grosor) grosor.addEventListener('change', ()=>{ s.grosor = Number(grosor.value); update(); });
+
+  host.querySelectorAll('.swatch[data-pick]').forEach(el=>{
+    el.addEventListener('click', ()=>{ s.material = el.dataset.pick; renderOptions(); update(); });
+  });
+  host.querySelectorAll('.chip[data-pick]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const isFinish = CONFIG.finishes.some(f=>f.id===el.dataset.pick);
+      const isPata = CONFIG.escritorio.patas.some(p=>p.id===el.dataset.pick);
+      if (isFinish) s.finish = el.dataset.pick;
+      else if (isPata) s.patas = el.dataset.pick;
+      renderOptions(); update();
+    });
+  });
+  host.querySelectorAll('.chip[data-pickn]').forEach(el=>{
+    el.addEventListener('click', ()=>{ s.puertas = Number(el.dataset.pickn); renderOptions(); update(); });
+  });
+  host.querySelectorAll('input[data-toggle]').forEach(el=>{
+    el.addEventListener('change', ()=>{ s[el.dataset.toggle] = el.checked; update(); });
+  });
+}
+
+/* =========================================================================
+   UPDATE / PRICE PANEL
+   ========================================================================= */
+function update(){
+  drawPreview();
+  const r = calcCurrent();
+  document.getElementById('priceLines').innerHTML = r.lines.map(l=>
+    `<div class="price-line"><span>${l.label}</span><span class="amt">${fmt(l.amount)}</span></div>`
+  ).join('') + `<div class="price-line"><span>IVA (21%)</span><span class="amt">${fmt(r.iva)}</span></div>`;
+  document.getElementById('priceTotal').textContent = fmt(r.total);
+  document.getElementById('mobileTotal').textContent = fmt(r.total);
+
+  const s = state[state.product];
+  let meta = '';
+  if (state.product==='tablero') meta = `<span><b>${s.ancho}×${s.alto} cm</b></span><span>${s.grosor} mm</span>`;
+  if (state.product==='escritorio') meta = `<span><b>${s.ancho}×${s.fondo} cm</b></span>`;
+  if (state.product==='estanteria') meta = `<span><b>${s.ancho}×${s.alto}×${s.fondo} cm</b></span><span>${s.baldas} baldas</span>`;
+  document.getElementById('previewMeta').innerHTML = meta;
+
+  saveToStorage();
+}
+
+/* =========================================================================
+   NAVEGACIÓN
+   ========================================================================= */
+const PRODUCT_META = {
+  tablero: { title:'Tableros a medida', sub:'Elige medidas, material y acabado. El precio se ajusta al instante.' },
+  escritorio: { title:'Escritorios a medida', sub:'Configura tu escritorio ideal y ve el precio en tiempo real.' },
+  estanteria: { title:'Estanterías a medida', sub:'Diseña tu estantería a tu gusto y consulta el precio al momento.' },
+};
+
+function openConfigurator(product){
+  state.product = product;
+  document.getElementById('screen-pick').style.display = 'none';
+  document.getElementById('screen-config').style.display = 'block';
+  document.getElementById('configTitle').textContent = PRODUCT_META[product].title;
+  document.getElementById('configSub').textContent = PRODUCT_META[product].sub;
+  document.getElementById('stepPill').textContent = '2/2 · Configura y ve el precio';
+  renderOptions();
+  update();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+document.querySelectorAll('.pick-card').forEach(card=>{
+  card.addEventListener('click', ()=> openConfigurator(card.dataset.product));
+});
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  document.getElementById('screen-config').style.display = 'none';
+  document.getElementById('screen-pick').style.display = 'block';
+  document.getElementById('stepPill').textContent = '1/2 · Elige tu producto';
+  window.scrollTo({top:0, behavior:'instant'});
+});
+
+/* =========================================================================
+   MODAL / ENVÍO
+   ========================================================================= */
+function buildSummaryText(){
+  const s = state[state.product];
+  const r = calcCurrent();
+  let dims = '';
+  if (state.product==='tablero') dims = `${s.ancho}×${s.alto} cm, grosor ${s.grosor} mm`;
+  if (state.product==='escritorio') dims = `${s.ancho}×${s.fondo} cm`;
+  if (state.product==='estanteria') dims = `${s.ancho}×${s.alto}×${s.fondo} cm, ${s.baldas} baldas`;
+
+  let lines = `Presupuesto Madera Fina\n`;
+  lines += `Producto: ${PRODUCT_META[state.product].title}\n`;
+  lines += `Medidas: ${dims}\n`;
+  lines += `Material: ${matById(s.material).name} · Acabado: ${finById(s.finish).name}\n`;
+  r.lines.forEach(l=> lines += `- ${l.label}: ${fmt(l.amount)}\n`);
+  lines += `IVA (21%): ${fmt(r.iva)}\n`;
+  lines += `TOTAL: ${fmt(r.total)}\n`;
+  return lines;
+}
+
+function openModal(){
+  document.getElementById('summaryBox').textContent = buildSummaryText();
+  document.getElementById('formView').style.display = 'block';
+  document.getElementById('successView').style.display = 'none';
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(){ document.getElementById('modalBg').classList.remove('open'); }
+
+document.getElementById('ctaBtn').addEventListener('click', openModal);
+document.getElementById('mobileCta').addEventListener('click', openModal);
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('closeSuccess').addEventListener('click', closeModal);
+document.getElementById('modalBg').addEventListener('click', (e)=>{ if(e.target.id==='modalBg') closeModal(); });
+
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const blob = new Blob([buildSummaryText()], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'presupuesto-madera-fina.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('sendBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('fName').value.trim();
+  const email = document.getElementById('fEmail').value.trim();
+  if (!name || !email){
+    alert('Por favor, indica al menos tu nombre y email.');
+    return;
+  }
+  const phone = document.getElementById('fPhone').value.trim();
+  const notes = document.getElementById('fNotes').value.trim();
+  const body = `${buildSummaryText()}\nNombre: ${name}\nEmail: ${email}\nTeléfono: ${phone||'-'}\nComentarios: ${notes||'-'}`;
+
+  const mailto = `mailto:${CONFIG.contactEmail}?subject=${encodeURIComponent('Solicitud de presupuesto - '+PRODUCT_META[state.product].title)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailto;
+
+  document.getElementById('formView').style.display = 'none';
+  document.getElementById('successView').style.display = 'block';
+});
+
+/* =========================================================================
+   COMPARTIR ENLACE (config en la URL) + PERSISTENCIA LOCAL
+   ========================================================================= */
+document.getElementById('shareBtn').addEventListener('click', ()=>{
+  const params = new URLSearchParams();
+  params.set('p', state.product);
+  Object.entries(state[state.product]).forEach(([k,v])=> params.set(k, v));
+  const url = `${location.origin}${location.pathname}?${params.toString()}`;
+  navigator.clipboard?.writeText(url).then(()=>{
+    const btn = document.getElementById('shareBtn');
+    const old = btn.textContent;
+    btn.textContent = '¡Enlace copiado!';
+    setTimeout(()=> btn.textContent = old, 1800);
+  }).catch(()=> prompt('Copia este enlace:', url));
+});
+
+function loadFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const p = params.get('p');
+  if (!p || !state[p]) return false;
+  Object.keys(state[p]).forEach(k=>{
+    if (!params.has(k)) return;
+    const raw = params.get(k);
+    if (raw==='true' || raw==='false') state[p][k] = raw==='true';
+    else if (!isNaN(Number(raw)) && raw!=='') state[p][k] = Number(raw);
+    else state[p][k] = raw;
+  });
+  openConfigurator(p);
+  return true;
+}
+
+function saveToStorage(){
+  try{ localStorage.setItem('mf_presupuestador_state', JSON.stringify(state)); }catch(e){}
+}
+function loadFromStorage(){
+  try{
+    const raw = localStorage.getItem('mf_presupuestador_state');
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    ['tablero','escritorio','estanteria'].forEach(k=>{
+      if (saved[k]) Object.assign(state[k], saved[k]);
+    });
+  }catch(e){}
+}
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+loadFromStorage();
+if (!loadFromUrl()){
+  // se queda en la pantalla de selección de producto
+}
+</script>
+</body>
+</html>
